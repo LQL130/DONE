@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sổ Quỹ — Quản lý chi tiêu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1b3a2f;          /* deep ledger green */
+    --ink-soft:#2f5445;
+    --paper:#fbf8ef;         /* passbook paper */
+    --paper-line:#e3ddc8;
+    --brass:#b8923f;         /* brass / gold seal */
+    --brass-soft:#e9d9ab;
+    --stamp-red:#a13d3d;     /* expense stamp */
+    --stamp-green:#2f6b4f;   /* income stamp */
+    --muted:#8a8368;
+    --shadow: 0 18px 40px -20px rgba(27,58,47,0.35);
+    --radius: 14px;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 15% 0%, rgba(184,146,63,0.10), transparent 45%),
+      radial-gradient(circle at 100% 30%, rgba(27,58,47,0.08), transparent 50%),
+      var(--paper);
+    background-attachment:fixed;
+    font-family:'Be Vietnam Pro', system-ui, sans-serif;
+    color:var(--ink);
+    min-height:100vh;
+    padding:32px 16px 80px;
+  }
+
+  .wrap{max-width:720px; margin:0 auto;}
+
+  /* ---------- Header / passbook cover ---------- */
+  header.cover{
+    background:linear-gradient(160deg, var(--ink) 0%, var(--ink-soft) 100%);
+    color:var(--paper);
+    border-radius: var(--radius);
+    padding:28px 26px 24px;
+    box-shadow:var(--shadow);
+    position:relative;
+    overflow:hidden;
+  }
+  header.cover::before{
+    content:"";
+    position:absolute; inset:0;
+    background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 34px);
+    pointer-events:none;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--brass-soft);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .eyebrow::before{
+    content:"";
+    width:7px;height:7px;border-radius:50%;
+    background:var(--brass);
+    box-shadow:0 0 0 3px rgba(184,146,63,0.25);
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:26px;
+    margin:10px 0 18px;
+    letter-spacing:.01em;
+  }
+
+  .balance-block{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:14px;
+    border-top:1px dashed rgba(251,248,239,0.25);
+    padding-top:16px;
+  }
+  .balance-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:rgba(251,248,239,0.65);
+    margin-bottom:6px;
+  }
+  .balance-figure{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(30px, 8vw, 44px);
+    line-height:1;
+    letter-spacing:-0.01em;
+  }
+  .balance-figure .vnd{
+    font-size:0.4em;
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:500;
+    color:var(--brass-soft);
+    margin-left:6px;
+  }
+  .seal{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    letter-spacing:.08em;
+    text-align:right;
+    color:rgba(251,248,239,0.55);
+    line-height:1.5;
+  }
+
+  /* ---------- Sync control ---------- */
+  .sync-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-top:14px;
+  }
+  .sync-status{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:.04em;
+    color:rgba(251,248,239,0.7);
+  }
+  .sync-status .led{
+    width:7px; height:7px; border-radius:50%;
+    background:#8a8368;
+    box-shadow:0 0 0 3px rgba(138,131,104,0.2);
+  }
+  .sync-status.on .led{background:var(--stamp-green); box-shadow:0 0 0 3px rgba(47,107,79,0.28);}
+  .sync-status.off .led{background:rgba(251,248,239,0.35);}
+  .sync-btn{
+    width:auto;
+    background:transparent;
+    border:1px solid rgba(251,248,239,0.35);
+    color:var(--paper);
+    font-size:12px;
+    padding:6px 12px;
+  }
+  .sync-btn:hover{background:rgba(251,248,239,0.1); opacity:1;}
+
+  .sync-panel{
+    margin-top:16px;
+    background:var(--paper);
+    border:1px solid var(--paper-line);
+    border-radius:var(--radius);
+    padding:18px;
+    display:none;
+    box-shadow:0 10px 24px -18px rgba(27,58,47,0.4);
+  }
+  .sync-panel.show{display:block;}
+  .sync-panel h3{
+    font-family:'Fraunces', serif;
+    font-size:16px;
+    margin:0 0 6px;
+  }
+  .sync-panel p{
+    font-size:13px;
+    color:var(--muted);
+    margin:0 0 14px;
+    line-height:1.5;
+  }
+  .sync-panel .setup-form{display:flex; gap:8px; flex-wrap:wrap;}
+  .sync-panel .setup-form input{flex:1 1 200px;}
+  .sync-panel .setup-form button{width:auto; flex-shrink:0;}
+  .sync-connected-box{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+    background:var(--brass-soft);
+    border:1px solid var(--brass);
+    border-radius:9px;
+    padding:10px 14px;
+    margin-bottom:12px;
+  }
+  .sync-connected-box .code{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    font-weight:600;
+    color:#5c4a1e;
+  }
+  .sync-connected-box button{width:auto; background:var(--ink); color:var(--paper); font-size:12px; padding:6px 12px;}
+
+  /* ---------- Setup strip (first run) ---------- */
+  .setup{
+    margin-top:16px;
+    background:var(--brass-soft);
+    border:1px solid var(--brass);
+    border-radius:var(--radius);
+    padding:16px 18px;
+    display:none;
+    gap:12px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  .setup.show{display:flex;}
+  .setup p{
+    margin:0; flex:1 1 220px;
+    font-size:14px; color:#5c4a1e;
+  }
+  .setup .setup-form{display:flex; gap:8px; flex:1 1 260px;}
+
+  /* ---------- Card / entry panels ---------- */
+  .panels{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+    margin-top:22px;
+  }
+  @media (max-width:560px){ .panels{grid-template-columns:1fr;} }
+
+  .panel{
+    background:var(--paper);
+    border:1px solid var(--paper-line);
+    border-radius:var(--radius);
+    padding:18px 18px 16px;
+    box-shadow:0 10px 24px -18px rgba(27,58,47,0.4);
+    position:relative;
+  }
+  .panel.expense{border-top:3px solid var(--stamp-red);}
+  .panel.income{border-top:3px solid var(--stamp-green);}
+
+  .panel-title{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .panel.expense .panel-title{color:var(--stamp-red);}
+  .panel.income .panel-title{color:var(--stamp-green);}
+  .panel-title .dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+
+  label{
+    display:block;
+    font-size:12px;
+    color:var(--muted);
+    margin-bottom:4px;
+    font-weight:500;
+  }
+  .field{margin-bottom:12px;}
+  input[type="text"], input[type="number"]{
+    width:100%;
+    font-family:'Be Vietnam Pro', sans-serif;
+    font-size:15px;
+    padding:10px 12px;
+    border:1px solid var(--paper-line);
+    border-radius:9px;
+    background:#fff;
+    color:var(--ink);
+    outline:none;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  input[type="text"]:focus, input[type="number"]:focus{
+    border-color:var(--ink-soft);
+    box-shadow:0 0 0 3px rgba(47,84,69,0.12);
+  }
+
+  button{
+    font-family:'Be Vietnam Pro', sans-serif;
+    font-weight:600;
+    font-size:14px;
+    border:none;
+    border-radius:9px;
+    padding:10px 16px;
+    cursor:pointer;
+    transition:transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+    width:100%;
+  }
+  button:active{transform:scale(0.98);}
+  .btn-expense{background:var(--stamp-red); color:#fff;}
+  .btn-income{background:var(--stamp-green); color:#fff;}
+  .btn-setup{background:var(--ink); color:var(--paper); white-space:nowrap;}
+  button:hover{opacity:.92;}
+  button:focus-visible, input:focus-visible{outline:2px solid var(--brass); outline-offset:2px;}
+
+  .hint{font-size:11.5px; color:var(--muted); margin-top:8px; line-height:1.4;}
+
+  /* ---------- Ledger / history ---------- */
+  .ledger{
+    margin-top:22px;
+    background:var(--paper);
+    border:1px solid var(--paper-line);
+    border-radius:var(--radius);
+    box-shadow:0 10px 24px -18px rgba(27,58,47,0.4);
+    overflow:hidden;
+  }
+  .ledger-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:16px 18px 12px;
+    border-bottom:1px dashed var(--paper-line);
+  }
+  .ledger-head h2{
+    font-family:'Fraunces', serif;
+    font-size:17px;
+    font-weight:600;
+    margin:0;
+  }
+  .ledger-count{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--muted);
+  }
+  ul.rows{list-style:none; margin:0; padding:0;}
+  .row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:12px 18px;
+    border-bottom:1px solid var(--paper-line);
+  }
+  .row:last-child{border-bottom:none;}
+  .row .stamp{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    padding:3px 7px;
+    border-radius:5px;
+    flex-shrink:0;
+    border:1px solid currentColor;
+  }
+  .row.out .stamp{color:var(--stamp-red);}
+  .row.in .stamp{color:var(--stamp-green);}
+  .row .meta{flex:1; min-width:0;}
+  .row .item-name{font-size:14.5px; font-weight:500; color:var(--ink); }
+  .row .item-date{font-size:11.5px; color:var(--muted); font-family:'IBM Plex Mono', monospace; margin-top:1px;}
+  .row .amount{
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:600;
+    font-size:14.5px;
+    white-space:nowrap;
+  }
+  .row.out .amount{color:var(--stamp-red);}
+  .row.in .amount{color:var(--stamp-green);}
+  .row .del{
+    background:none; border:none; width:auto; padding:4px 6px;
+    color:var(--muted); font-size:16px; line-height:1; cursor:pointer;
+    border-radius:6px;
+  }
+  .row .del:hover{color:var(--stamp-red); background:rgba(161,61,61,0.08);}
+
+  .empty{
+    padding:34px 18px 40px;
+    text-align:center;
+    color:var(--muted);
+    font-size:14px;
+  }
+  .empty .glyph{font-size:26px; display:block; margin-bottom:8px; opacity:.6;}
+
+  footer{
+    text-align:center;
+    margin-top:26px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--muted);
+    letter-spacing:.05em;
+  }
+
+  .toast{
+    position:fixed;
+    left:50%; bottom:24px;
+    transform:translateX(-50%) translateY(20px);
+    background:var(--ink);
+    color:var(--paper);
+    padding:10px 18px;
+    border-radius:10px;
+    font-size:13px;
+    box-shadow:var(--shadow);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease;
+    z-index:50;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+</style>
+<!-- Firebase (dùng để đồng bộ dữ liệu giữa các thiết bị — xem hướng dẫn cấu hình trong README.md) -->
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="cover">
+    <div class="eyebrow">Sổ quỹ cá nhân</div>
+    <h1>Theo dõi thu chi</h1>
+    <div class="balance-block">
+      <div>
+        <div class="balance-label">Số dư hiện tại</div>
+        <div class="balance-figure"><span id="balanceValue">0</span><span class="vnd">₫</span></div>
+      </div>
+      <div class="seal" id="lastUpdate">Chưa có giao dịch nào</div>
+    </div>
+    <div class="sync-row">
+      <span class="sync-status off" id="syncStatus"><span class="led"></span><span id="syncStatusText">Chỉ lưu trên máy này</span></span>
+      <button class="sync-btn" id="syncToggleBtn">🔄 Đồng bộ thiết bị</button>
+    </div>
+  </header>
+
+  <div class="sync-panel" id="syncPanel">
+    <div id="syncDisconnectedView">
+      <h3>Đồng bộ nhiều thiết bị</h3>
+      <p>Nhập một <strong>mã đồng bộ</strong> (tự đặt, ví dụ <em>giadinh-nguyen-2026</em>) trên tất cả các thiết bị bạn muốn dùng chung — điện thoại, máy tính... Ai biết mã này cũng xem/sửa được dữ liệu, nên hãy đặt mã khó đoán và chỉ chia sẻ với người bạn tin tưởng.</p>
+      <div class="setup-form">
+        <input type="text" id="syncCodeInput" placeholder="Nhập mã đồng bộ...">
+        <button class="btn-setup" id="syncConnectBtn">Kết nối</button>
+      </div>
+    </div>
+    <div id="syncConnectedView" style="display:none;">
+      <h3>Đang đồng bộ</h3>
+      <div class="sync-connected-box">
+        <span class="code">Mã: <span id="syncCodeDisplay"></span></span>
+        <button id="syncDisconnectBtn">Ngắt kết nối</button>
+      </div>
+      <p>Mở cùng mã này trên thiết bị khác để thấy số liệu giống nhau, cập nhật gần như ngay lập tức.</p>
+    </div>
+  </div>
+
+  <div class="setup" id="setupBox">
+    <p>Đây là lần đầu bạn dùng sổ quỹ này — nhập số tiền đang có để bắt đầu theo dõi.</p>
+    <div class="setup-form">
+      <input type="number" id="setupAmount" placeholder="Ví dụ: 2000000" inputmode="numeric" min="0">
+      <button class="btn-setup" id="setupBtn" style="width:auto;">Bắt đầu</button>
+    </div>
+  </div>
+
+  <div class="panels">
+    <div class="panel expense">
+      <div class="panel-title"><span class="dot"></span> Ghi khoản chi</div>
+      <div class="field">
+        <label for="expenseName">Tên khoản chi</label>
+        <input type="text" id="expenseName" placeholder="Ví dụ: Ăn trưa, xăng xe...">
+      </div>
+      <div class="field">
+        <label for="expenseAmount">Số tiền</label>
+        <input type="number" id="expenseAmount" placeholder="0" inputmode="numeric" min="0">
+      </div>
+      <button class="btn-expense" id="expenseBtn">− Trừ khoản chi</button>
+    </div>
+
+    <div class="panel income">
+      <div class="panel-title"><span class="dot"></span> Thêm tiền vào</div>
+      <div class="field">
+        <label for="incomeName">Nguồn tiền (không bắt buộc)</label>
+        <input type="text" id="incomeName" placeholder="Ví dụ: Lương, được cho...">
+      </div>
+      <div class="field">
+        <label for="incomeAmount">Số tiền</label>
+        <input type="number" id="incomeAmount" placeholder="0" inputmode="numeric" min="0">
+      </div>
+      <button class="btn-income" id="incomeBtn">+ Cộng tiền vào</button>
+    </div>
+  </div>
+
+  <div class="ledger">
+    <div class="ledger-head">
+      <h2>Lịch sử giao dịch</h2>
+      <span class="ledger-count" id="txCount">0 mục</span>
+    </div>
+    <ul class="rows" id="rows"></ul>
+    <div class="empty" id="emptyState">
+      <span class="glyph">✦</span>
+      Chưa có giao dịch nào được ghi lại.
+    </div>
+  </div>
+
+  <footer>Dữ liệu lưu trên trình duyệt của bạn. Bật "Đồng bộ thiết bị" ở trên để dùng chung số liệu trên nhiều máy.</footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  const STORAGE_KEY = 'so-quy-data-v1';
+  const SYNC_CODE_KEY = 'so-quy-sync-code-v1';
+
+  // ============================================================
+  // CẤU HÌNH FIREBASE — điền thông tin dự án Firebase của bạn vào đây
+  // để bật tính năng đồng bộ nhiều thiết bị. Xem hướng dẫn lấy các
+  // giá trị này trong README.md (mục "Đồng bộ nhiều thiết bị").
+  // Nếu để trống, ứng dụng vẫn chạy bình thường nhưng chỉ lưu trên
+  // từng máy riêng lẻ (như trước đây).
+  // ============================================================
+  const FIREBASE_CONFIG = {
+    apiKey: "",
+    authDomain: "",
+    projectId: "",
+    storageBucket: "",
+    messagingSenderId: "",
+    appId: ""
+  };
+  const SYNC_ENABLED = !!(FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.projectId);
+  const SYNC_COLLECTION = 'soQuySync';
+
+  let db = null;
+  let unsubscribe = null;
+  let syncCode = null;
+  let applyingRemote = false;   // prevents write-back loop when a remote snapshot arrives
+  let writeTimer = null;
+
+  if(SYNC_ENABLED){
+    try{
+      firebase.initializeApp(FIREBASE_CONFIG);
+      db = firebase.firestore();
+      db.enablePersistence({ synchronizeTabs: true }).catch(()=>{ /* fine if unsupported / multi-tab */ });
+    }catch(e){
+      console.error('Không khởi tạo được Firebase:', e);
+      db = null;
+    }
+  }
+
+  function load(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return { initialized:false, balance:0, transactions:[] };
+      const data = JSON.parse(raw);
+      if(typeof data.balance !== 'number' || !Array.isArray(data.transactions)) throw 0;
+      return data;
+    }catch(e){
+      return { initialized:false, balance:0, transactions:[] };
+    }
+  }
+
+  let state = load();
+
+  function save(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  // Persist locally, and push to Firestore (debounced) when sync is on.
+  function persist(){
+    save();
+    if(db && syncCode && !applyingRemote){
+      clearTimeout(writeTimer);
+      writeTimer = setTimeout(()=>{
+        db.collection(SYNC_COLLECTION).doc(syncCode).set({
+          balance: state.balance,
+          transactions: state.transactions,
+          initialized: state.initialized,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).catch(err => {
+          console.error('Lỗi đồng bộ:', err);
+          showToast('Không đồng bộ được — kiểm tra kết nối mạng');
+        });
+      }, 250);
+    }
+  }
+
+  function formatVND(n){
+    const sign = n < 0 ? '−' : '';
+    return sign + Math.abs(Math.round(n)).toLocaleString('vi-VN');
+  }
+
+  function formatDate(ts){
+    const d = new Date(ts);
+    return d.toLocaleDateString('vi-VN', {day:'2-digit', month:'2-digit', year:'numeric'}) +
+           ' · ' + d.toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'});
+  }
+
+  const el = {
+    balanceValue: document.getElementById('balanceValue'),
+    lastUpdate: document.getElementById('lastUpdate'),
+    setupBox: document.getElementById('setupBox'),
+    setupAmount: document.getElementById('setupAmount'),
+    setupBtn: document.getElementById('setupBtn'),
+    expenseName: document.getElementById('expenseName'),
+    expenseAmount: document.getElementById('expenseAmount'),
+    expenseBtn: document.getElementById('expenseBtn'),
+    incomeName: document.getElementById('incomeName'),
+    incomeAmount: document.getElementById('incomeAmount'),
+    incomeBtn: document.getElementById('incomeBtn'),
+    rows: document.getElementById('rows'),
+    emptyState: document.getElementById('emptyState'),
+    txCount: document.getElementById('txCount'),
+    toast: document.getElementById('toast'),
+    syncStatus: document.getElementById('syncStatus'),
+    syncStatusText: document.getElementById('syncStatusText'),
+    syncToggleBtn: document.getElementById('syncToggleBtn'),
+    syncPanel: document.getElementById('syncPanel'),
+    syncDisconnectedView: document.getElementById('syncDisconnectedView'),
+    syncConnectedView: document.getElementById('syncConnectedView'),
+    syncCodeInput: document.getElementById('syncCodeInput'),
+    syncConnectBtn: document.getElementById('syncConnectBtn'),
+    syncCodeDisplay: document.getElementById('syncCodeDisplay'),
+    syncDisconnectBtn: document.getElementById('syncDisconnectBtn'),
+  };
+
+  let toastTimer;
+  function showToast(msg){
+    el.toast.textContent = msg;
+    el.toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=> el.toast.classList.remove('show'), 1800);
+  }
+
+  function render(){
+    el.balanceValue.textContent = formatVND(state.balance);
+    el.setupBox.classList.toggle('show', !state.initialized);
+
+    const txs = state.transactions.slice().sort((a,b)=> b.ts - a.ts);
+    el.txCount.textContent = txs.length + (txs.length === 1 ? ' mục' : ' mục');
+    el.rows.innerHTML = '';
+
+    if(txs.length === 0){
+      el.emptyState.style.display = 'block';
+    } else {
+      el.emptyState.style.display = 'none';
+      txs.forEach(tx => {
+        const li = document.createElement('li');
+        li.className = 'row ' + (tx.type === 'expense' ? 'out' : 'in');
+        li.innerHTML = `
+          <span class="stamp">${tx.type === 'expense' ? 'Chi' : 'Thu'}</span>
+          <span class="meta">
+            <div class="item-name">${escapeHtml(tx.name)}</div>
+            <div class="item-date">${formatDate(tx.ts)}</div>
+          </span>
+          <span class="amount">${tx.type === 'expense' ? '−' : '+'}${formatVND(tx.amount)} ₫</span>
+          <button class="del" title="Xóa giao dịch" data-id="${tx.id}">✕</button>
+        `;
+        el.rows.appendChild(li);
+      });
+    }
+
+    if(state.transactions.length){
+      const latest = state.transactions.slice().sort((a,b)=> b.ts - a.ts)[0];
+      el.lastUpdate.textContent = 'Cập nhật gần nhất: ' + formatDate(latest.ts);
+    } else {
+      el.lastUpdate.textContent = 'Chưa có giao dịch nào';
+    }
+  }
+
+  function escapeHtml(str){
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  function setup(){
+    const val = parseFloat(el.setupAmount.value);
+    if(isNaN(val) || val < 0){
+      showToast('Vui lòng nhập số tiền hợp lệ');
+      return;
+    }
+    state.balance = val;
+    state.initialized = true;
+    persist();
+    render();
+    el.setupAmount.value = '';
+    showToast('Đã thiết lập số dư ban đầu');
+  }
+
+  function addTransaction(type, nameInput, amountInput, defaultName){
+    const amount = parseFloat(amountInput.value);
+    if(isNaN(amount) || amount <= 0){
+      showToast('Vui lòng nhập số tiền hợp lệ');
+      return;
+    }
+    const name = nameInput.value.trim() || defaultName;
+
+    if(type === 'expense' && amount > state.balance){
+      const proceed = confirm('Số tiền chi vượt quá số dư hiện có (' + formatVND(state.balance) + ' ₫). Vẫn ghi nhận khoản chi này?');
+      if(!proceed) return;
+    }
+
+    const tx = {
+      id: Date.now() + '-' + Math.random().toString(36).slice(2,7),
+      type,
+      name,
+      amount,
+      ts: Date.now()
+    };
+    state.transactions.push(tx);
+    state.balance = type === 'expense' ? state.balance - amount : state.balance + amount;
+    if(!state.initialized) state.initialized = true;
+    persist();
+    render();
+
+    nameInput.value = '';
+    amountInput.value = '';
+    showToast(type === 'expense' ? 'Đã trừ khoản chi' : 'Đã cộng tiền vào');
+  }
+
+  function deleteTransaction(id){
+    const idx = state.transactions.findIndex(t => t.id === id);
+    if(idx === -1) return;
+    const tx = state.transactions[idx];
+    state.balance = tx.type === 'expense' ? state.balance + tx.amount : state.balance - tx.amount;
+    state.transactions.splice(idx, 1);
+    persist();
+    render();
+    showToast('Đã xóa giao dịch');
+  }
+
+  function updateSyncUI(){
+    if(!SYNC_ENABLED){
+      el.syncStatus.className = 'sync-status off';
+      el.syncStatusText.textContent = 'Đồng bộ chưa được cấu hình';
+      el.syncToggleBtn.style.display = 'none';
+      return;
+    }
+    if(syncCode){
+      el.syncStatus.className = 'sync-status on';
+      el.syncStatusText.textContent = 'Đã đồng bộ · ' + syncCode;
+      el.syncDisconnectedView.style.display = 'none';
+      el.syncConnectedView.style.display = 'block';
+      el.syncCodeDisplay.textContent = syncCode;
+    } else {
+      el.syncStatus.className = 'sync-status off';
+      el.syncStatusText.textContent = 'Chỉ lưu trên máy này';
+      el.syncDisconnectedView.style.display = 'block';
+      el.syncConnectedView.style.display = 'none';
+    }
+  }
+
+  function sanitizeCode(raw){
+    return raw.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-_]/g, '');
+  }
+
+  function connectSync(code){
+    if(!db){
+      showToast('Đồng bộ chưa được cấu hình trên trang này');
+      return;
+    }
+    const clean = sanitizeCode(code);
+    if(!clean){
+      showToast('Vui lòng nhập mã đồng bộ hợp lệ');
+      return;
+    }
+    if(unsubscribe) unsubscribe();
+
+    syncCode = clean;
+    localStorage.setItem(SYNC_CODE_KEY, syncCode);
+    updateSyncUI();
+
+    const docRef = db.collection(SYNC_COLLECTION).doc(syncCode);
+    unsubscribe = docRef.onSnapshot(snap => {
+      if(snap.metadata.hasPendingWrites) return; // our own write echoing back — ignore
+      if(snap.exists){
+        const data = snap.data();
+        applyingRemote = true;
+        state = {
+          initialized: !!data.initialized,
+          balance: typeof data.balance === 'number' ? data.balance : 0,
+          transactions: Array.isArray(data.transactions) ? data.transactions : []
+        };
+        save();
+        render();
+        applyingRemote = false;
+      } else {
+        // No document yet at this code — push current local state to create it.
+        docRef.set({
+          balance: state.balance,
+          transactions: state.transactions,
+          initialized: state.initialized,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).catch(err => console.error('Lỗi tạo dữ liệu đồng bộ:', err));
+      }
+    }, err => {
+      console.error('Lỗi lắng nghe đồng bộ:', err);
+      showToast('Mất kết nối đồng bộ — dữ liệu vẫn lưu trên máy này');
+    });
+
+    showToast('Đã kết nối đồng bộ');
+  }
+
+  function disconnectSync(){
+    if(unsubscribe) unsubscribe();
+    unsubscribe = null;
+    syncCode = null;
+    localStorage.removeItem(SYNC_CODE_KEY);
+    updateSyncUI();
+    showToast('Đã ngắt kết nối đồng bộ');
+  }
+
+  el.syncToggleBtn.addEventListener('click', () => {
+    el.syncPanel.classList.toggle('show');
+  });
+  el.syncConnectBtn.addEventListener('click', () => {
+    connectSync(el.syncCodeInput.value);
+    el.syncCodeInput.value = '';
+  });
+  el.syncCodeInput.addEventListener('keydown', e => {
+    if(e.key === 'Enter'){ connectSync(el.syncCodeInput.value); el.syncCodeInput.value = ''; }
+  });
+  el.syncDisconnectBtn.addEventListener('click', disconnectSync);
+
+  el.setupBtn.addEventListener('click', setup);
+  el.setupAmount.addEventListener('keydown', e => { if(e.key === 'Enter') setup(); });
+
+  el.expenseBtn.addEventListener('click', () => addTransaction('expense', el.expenseName, el.expenseAmount, 'Khoản chi'));
+  el.expenseAmount.addEventListener('keydown', e => { if(e.key === 'Enter') addTransaction('expense', el.expenseName, el.expenseAmount, 'Khoản chi'); });
+
+  el.incomeBtn.addEventListener('click', () => addTransaction('income', el.incomeName, el.incomeAmount, 'Tiền thêm vào'));
+  el.incomeAmount.addEventListener('keydown', e => { if(e.key === 'Enter') addTransaction('income', el.incomeName, el.incomeAmount, 'Tiền thêm vào'); });
+
+  el.rows.addEventListener('click', e => {
+    const btn = e.target.closest('.del');
+    if(!btn) return;
+    deleteTransaction(btn.dataset.id);
+  });
+
+  updateSyncUI();
+  render();
+
+  const savedCode = localStorage.getItem(SYNC_CODE_KEY);
+  if(SYNC_ENABLED && savedCode){
+    connectSync(savedCode);
+  }
+})();
+</script>
+</body>
+</html>
