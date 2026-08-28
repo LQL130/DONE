@@ -215,6 +215,103 @@
   }
   .setup .setup-form{display:flex; gap:8px; flex:1 1 260px;}
 
+  /* ---------- Stat cards (tổng thu/chi) ---------- */
+  .stats-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+    margin-top:22px;
+  }
+  @media (max-width:560px){ .stats-grid{grid-template-columns:1fr;} }
+  .stat-card{
+    background:var(--paper);
+    border:1px solid var(--paper-line);
+    border-radius:var(--radius);
+    padding:16px 18px;
+    box-shadow:0 10px 24px -18px rgba(27,58,47,0.4);
+  }
+  .stat-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:8px;
+  }
+  .stat-value{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:22px;
+  }
+  .stat-value.spent{color:var(--stamp-red);}
+  .stat-value.income{color:var(--stamp-green);}
+  .stat-value .vnd-small{font-size:0.55em; font-family:'IBM Plex Mono', monospace; font-weight:500; color:var(--muted); margin-left:4px;}
+
+  /* ---------- Budget card (giới hạn chi tiêu hàng tháng) ---------- */
+  .budget-card{
+    margin-top:16px;
+    background:var(--paper);
+    border:1px solid var(--paper-line);
+    border-radius:var(--radius);
+    padding:18px;
+    box-shadow:0 10px 24px -18px rgba(27,58,47,0.4);
+  }
+  .budget-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:14px;
+  }
+  .budget-head h3{
+    font-family:'Fraunces', serif;
+    font-size:16px;
+    font-weight:600;
+    margin:0;
+  }
+  .budget-edit-btn{
+    width:auto;
+    background:transparent;
+    border:1px solid var(--paper-line);
+    color:var(--ink-soft);
+    font-size:12px;
+    padding:6px 12px;
+  }
+  .budget-edit-btn:hover{background:rgba(47,84,69,0.06); opacity:1;}
+  .budget-set{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;}
+  .budget-set input{flex:1 1 200px;}
+  .budget-set button{width:auto; flex-shrink:0;}
+  .budget-row{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    font-size:14px;
+    margin-bottom:8px;
+  }
+  .budget-row span:first-child{color:var(--muted);}
+  .budget-row span:last-child{
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:600;
+  }
+  .budget-row.small{font-size:12px; margin-top:8px; margin-bottom:0;}
+  .budget-row.small span{font-family:'IBM Plex Mono', monospace; font-weight:500; color:var(--muted);}
+  .budget-bar{
+    width:100%;
+    height:10px;
+    border-radius:6px;
+    background:var(--paper-line);
+    overflow:hidden;
+  }
+  .budget-bar-fill{
+    height:100%;
+    width:0%;
+    background:var(--stamp-green);
+    border-radius:6px;
+    transition:width .3s ease, background-color .3s ease;
+  }
+  .budget-bar-fill.warn{background:var(--brass);}
+  .budget-bar-fill.over{background:var(--stamp-red);}
+  .budget-empty{font-size:13px; color:var(--muted); line-height:1.5;}
+
   /* ---------- Card / entry panels ---------- */
   .panels{
     display:grid;
@@ -444,6 +541,40 @@
     </div>
   </div>
 
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Tổng đã chi (tất cả)</div>
+      <div class="stat-value spent"><span id="totalExpenseValue">0</span><span class="vnd-small">₫</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Tổng đã thu (tất cả)</div>
+      <div class="stat-value income"><span id="totalIncomeValue">0</span><span class="vnd-small">₫</span></div>
+    </div>
+  </div>
+
+  <div class="budget-card">
+    <div class="budget-head">
+      <h3>Giới hạn chi tiêu tháng này</h3>
+      <button class="budget-edit-btn" id="budgetEditBtn">Đặt / Sửa</button>
+    </div>
+    <div class="budget-set" id="budgetSetForm" style="display:none;">
+      <input type="number" id="budgetLimitInput" placeholder="Ví dụ: 5000000" inputmode="numeric" min="0">
+      <button class="btn-setup" id="budgetSaveBtn">Lưu</button>
+    </div>
+    <div id="budgetDisplayNoLimit" class="budget-empty">Bạn chưa đặt giới hạn chi tiêu hàng tháng. Bấm "Đặt / Sửa" để nhập số tiền.</div>
+    <div id="budgetDisplay" style="display:none;">
+      <div class="budget-row">
+        <span>Đã chi tháng này</span>
+        <span id="budgetSpentValue">0 ₫</span>
+      </div>
+      <div class="budget-bar"><div class="budget-bar-fill" id="budgetBarFill"></div></div>
+      <div class="budget-row small">
+        <span id="budgetLimitText">Giới hạn: 0 ₫</span>
+        <span id="budgetRemainingText">Còn lại: 0 ₫</span>
+      </div>
+    </div>
+  </div>
+
   <div class="panels">
     <div class="panel expense">
       <div class="panel-title"><span class="dot"></span> Ghi khoản chi</div>
@@ -532,12 +663,13 @@
   function load(){
     try{
       const raw = localStorage.getItem(STORAGE_KEY);
-      if(!raw) return { initialized:false, balance:0, transactions:[] };
+      if(!raw) return { initialized:false, balance:0, transactions:[], monthlyLimit:null };
       const data = JSON.parse(raw);
       if(typeof data.balance !== 'number' || !Array.isArray(data.transactions)) throw 0;
+      if(typeof data.monthlyLimit !== 'number') data.monthlyLimit = null;
       return data;
     }catch(e){
-      return { initialized:false, balance:0, transactions:[] };
+      return { initialized:false, balance:0, transactions:[], monthlyLimit:null };
     }
   }
 
@@ -557,6 +689,7 @@
           balance: state.balance,
           transactions: state.transactions,
           initialized: state.initialized,
+          monthlyLimit: state.monthlyLimit,
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         }).catch(err => {
           console.error('Lỗi đồng bộ:', err);
@@ -603,6 +736,18 @@
     syncConnectBtn: document.getElementById('syncConnectBtn'),
     syncCodeDisplay: document.getElementById('syncCodeDisplay'),
     syncDisconnectBtn: document.getElementById('syncDisconnectBtn'),
+    totalExpenseValue: document.getElementById('totalExpenseValue'),
+    totalIncomeValue: document.getElementById('totalIncomeValue'),
+    budgetEditBtn: document.getElementById('budgetEditBtn'),
+    budgetSetForm: document.getElementById('budgetSetForm'),
+    budgetLimitInput: document.getElementById('budgetLimitInput'),
+    budgetSaveBtn: document.getElementById('budgetSaveBtn'),
+    budgetDisplayNoLimit: document.getElementById('budgetDisplayNoLimit'),
+    budgetDisplay: document.getElementById('budgetDisplay'),
+    budgetSpentValue: document.getElementById('budgetSpentValue'),
+    budgetBarFill: document.getElementById('budgetBarFill'),
+    budgetLimitText: document.getElementById('budgetLimitText'),
+    budgetRemainingText: document.getElementById('budgetRemainingText'),
   };
 
   let toastTimer;
@@ -613,9 +758,59 @@
     toastTimer = setTimeout(()=> el.toast.classList.remove('show'), 1800);
   }
 
+  function isSameMonth(ts, ref){
+    const a = new Date(ts), b = new Date(ref);
+    return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth();
+  }
+
+  function computeTotals(){
+    const now = Date.now();
+    let totalExpense = 0, totalIncome = 0, monthExpense = 0;
+    state.transactions.forEach(tx => {
+      if(tx.type === 'expense'){
+        totalExpense += tx.amount;
+        if(isSameMonth(tx.ts, now)) monthExpense += tx.amount;
+      } else {
+        totalIncome += tx.amount;
+      }
+    });
+    return { totalExpense, totalIncome, monthExpense };
+  }
+
+  function renderBudget(monthExpense){
+    el.totalExpenseValue.textContent = formatVND(computeTotals().totalExpense);
+    const limit = state.monthlyLimit;
+    if(limit === null || limit === undefined || isNaN(limit) || limit <= 0){
+      el.budgetDisplayNoLimit.style.display = 'block';
+      el.budgetDisplay.style.display = 'none';
+      return;
+    }
+    el.budgetDisplayNoLimit.style.display = 'none';
+    el.budgetDisplay.style.display = 'block';
+    el.budgetSpentValue.textContent = formatVND(monthExpense) + ' ₫';
+    const pct = Math.min(100, (monthExpense / limit) * 100);
+    el.budgetBarFill.style.width = pct + '%';
+    el.budgetBarFill.classList.remove('warn', 'over');
+    if(monthExpense > limit){
+      el.budgetBarFill.classList.add('over');
+    } else if(pct >= 80){
+      el.budgetBarFill.classList.add('warn');
+    }
+    el.budgetLimitText.textContent = 'Giới hạn: ' + formatVND(limit) + ' ₫';
+    const remaining = limit - monthExpense;
+    el.budgetRemainingText.textContent = remaining >= 0
+      ? 'Còn lại: ' + formatVND(remaining) + ' ₫'
+      : 'Vượt: ' + formatVND(Math.abs(remaining)) + ' ₫';
+  }
+
   function render(){
     el.balanceValue.textContent = formatVND(state.balance);
     el.setupBox.classList.toggle('show', !state.initialized);
+
+    const totals = computeTotals();
+    el.totalExpenseValue.textContent = formatVND(totals.totalExpense);
+    el.totalIncomeValue.textContent = formatVND(totals.totalIncome);
+    renderBudget(totals.monthExpense);
 
     const txs = state.transactions.slice().sort((a,b)=> b.ts - a.ts);
     el.txCount.textContent = txs.length + (txs.length === 1 ? ' mục' : ' mục');
@@ -700,6 +895,20 @@
     showToast(type === 'expense' ? 'Đã trừ khoản chi' : 'Đã cộng tiền vào');
   }
 
+  function setBudgetLimit(){
+    const val = parseFloat(el.budgetLimitInput.value);
+    if(isNaN(val) || val < 0){
+      showToast('Vui lòng nhập số tiền hợp lệ');
+      return;
+    }
+    state.monthlyLimit = val;
+    persist();
+    render();
+    el.budgetLimitInput.value = '';
+    el.budgetSetForm.style.display = 'none';
+    showToast('Đã lưu giới hạn chi tiêu hàng tháng');
+  }
+
   function deleteTransaction(id){
     const idx = state.transactions.findIndex(t => t.id === id);
     if(idx === -1) return;
@@ -761,7 +970,8 @@
         state = {
           initialized: !!data.initialized,
           balance: typeof data.balance === 'number' ? data.balance : 0,
-          transactions: Array.isArray(data.transactions) ? data.transactions : []
+          transactions: Array.isArray(data.transactions) ? data.transactions : [],
+          monthlyLimit: typeof data.monthlyLimit === 'number' ? data.monthlyLimit : null
         };
         save();
         render();
@@ -803,6 +1013,16 @@
     if(e.key === 'Enter'){ connectSync(el.syncCodeInput.value); el.syncCodeInput.value = ''; }
   });
   el.syncDisconnectBtn.addEventListener('click', disconnectSync);
+
+  el.budgetEditBtn.addEventListener('click', () => {
+    const showing = el.budgetSetForm.style.display !== 'none';
+    if(!showing && state.monthlyLimit){
+      el.budgetLimitInput.value = state.monthlyLimit;
+    }
+    el.budgetSetForm.style.display = showing ? 'none' : 'flex';
+  });
+  el.budgetSaveBtn.addEventListener('click', setBudgetLimit);
+  el.budgetLimitInput.addEventListener('keydown', e => { if(e.key === 'Enter') setBudgetLimit(); });
 
   el.setupBtn.addEventListener('click', setup);
   el.setupAmount.addEventListener('keydown', e => { if(e.key === 'Enter') setup(); });
