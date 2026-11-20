@@ -551,7 +551,7 @@
     color:var(--stamp-red);
   }
 
-  /* ---------- Line Chart Card (Biểu đồ đường Thu & Chi) ---------- */
+  /* ---------- Line Chart Card (Biểu đồ đường theo từng tháng) ---------- */
   .chart-card{
     margin-top:20px;
     background:var(--paper);
@@ -568,17 +568,68 @@
     flex-wrap:wrap;
     margin-bottom:12px;
   }
+  .chart-title-wrap{
+    display:flex;
+    flex-direction:column;
+    gap:3px;
+  }
   .chart-head h2{
     font-family:'Fraunces', serif;
     font-size:17px;
     font-weight:600;
     margin:0;
   }
+  .chart-subtitle{
+    font-size:11.5px;
+    color:var(--muted);
+  }
   .chart-controls{
     display:flex;
     align-items:center;
     gap:8px;
     flex-wrap:wrap;
+  }
+  .month-nav-group{
+    display:inline-flex;
+    align-items:center;
+    background:#fff;
+    border:1px solid var(--paper-line);
+    border-radius:9px;
+    overflow:hidden;
+  }
+  .month-nav-btn{
+    width:auto;
+    border-radius:0;
+    padding:6px 10px;
+    font-size:12px;
+    background:transparent;
+    color:var(--ink);
+    border:none;
+  }
+  .month-nav-btn:hover:not(:disabled){
+    background:rgba(27,58,47,0.07);
+    opacity:1;
+  }
+  .month-nav-btn:disabled{
+    opacity:0.35;
+    cursor:not-allowed;
+  }
+  .chart-month-select{
+    width:auto;
+    border:none;
+    border-left:1px solid var(--paper-line);
+    border-right:1px solid var(--paper-line);
+    border-radius:0;
+    padding:6px 10px;
+    font-size:12.5px;
+    font-weight:600;
+    font-family:'IBM Plex Mono', monospace;
+    background:#fff;
+    color:var(--ink);
+    cursor:pointer;
+  }
+  .chart-month-select:focus{
+    box-shadow:none;
   }
   .seg-group{
     display:inline-flex;
@@ -590,8 +641,8 @@
   .seg-btn{
     width:auto;
     border-radius:0;
-    padding:5px 11px;
-    font-size:12px;
+    padding:6px 10px;
+    font-size:11.5px;
     font-weight:500;
     background:transparent;
     color:var(--muted);
@@ -601,21 +652,54 @@
     color:var(--paper);
     font-weight:600;
   }
-  .chart-month-select{
-    width:auto;
-    padding:5px 10px;
-    font-size:12px;
-    border-radius:8px;
-    font-family:'IBM Plex Mono', monospace;
+
+  /* Thanh tóm tắt nhanh của tháng đang chọn trên biểu đồ */
+  .chart-month-summary{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:8px;
+    background:rgba(27,58,47,0.035);
+    border:1px solid var(--paper-line);
+    border-radius:10px;
+    padding:9px 12px;
+    margin-bottom:12px;
   }
+  @media (max-width:520px){ .chart-month-summary{grid-template-columns:1fr;} }
+  .cms-item{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+  .cms-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:var(--muted);
+  }
+  .cms-val{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13.5px;
+    font-weight:600;
+  }
+  .cms-val.in{color:var(--stamp-green);}
+  .cms-val.out{color:var(--stamp-red);}
+
   .chart-legend{
     display:flex;
     align-items:center;
-    gap:16px;
+    justify-content:space-between;
+    gap:12px;
     flex-wrap:wrap;
     font-size:12px;
     color:var(--muted);
-    margin-bottom:10px;
+    margin-bottom:8px;
+  }
+  .legend-left{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    flex-wrap:wrap;
   }
   .legend-item{
     display:inline-flex;
@@ -628,10 +712,16 @@
   .legend-line-dash{
     width:16px; height:0; border-top:2px dashed var(--brass);
   }
+  .hover-hint{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    color:var(--muted);
+  }
   .chart-canvas-wrap{
     position:relative;
     width:100%;
-    height:240px;
+    height:255px;
+    cursor:crosshair;
   }
   .chart-canvas-wrap canvas{
     width:100%;
@@ -641,33 +731,51 @@
   .chart-tooltip{
     position:absolute;
     pointer-events:none;
-    background:var(--ink);
+    background:rgba(27, 58, 47, 0.96);
     color:var(--paper);
-    border-radius:9px;
-    padding:9px 12px;
+    border:1px solid rgba(233, 217, 171, 0.35);
+    border-radius:10px;
+    padding:10px 13px;
     font-size:12px;
-    box-shadow:0 10px 25px -8px rgba(0,0,0,0.4);
+    box-shadow:0 12px 28px -8px rgba(0,0,0,0.45);
     opacity:0;
-    transition:opacity .12s ease;
+    transform:translateY(4px);
+    transition:opacity .12s ease, transform .12s ease;
     z-index:10;
-    min-width:155px;
+    min-width:185px;
+    backdrop-filter:blur(4px);
   }
-  .chart-tooltip.show{opacity:1;}
+  .chart-tooltip.show{
+    opacity:1;
+    transform:translateY(0);
+  }
   .chart-tooltip .tt-title{
     font-family:'IBM Plex Mono', monospace;
-    font-size:11px;
+    font-size:11.5px;
+    font-weight:600;
     color:var(--brass-soft);
-    margin-bottom:4px;
-    border-bottom:1px dashed rgba(251,248,239,0.2);
-    padding-bottom:3px;
+    margin-bottom:6px;
+    border-bottom:1px dashed rgba(251,248,239,0.22);
+    padding-bottom:4px;
   }
   .chart-tooltip .tt-row{
     display:flex;
     justify-content:space-between;
-    gap:12px;
+    align-items:center;
+    gap:14px;
     font-family:'IBM Plex Mono', monospace;
     font-size:11.5px;
-    margin-top:2px;
+    margin-top:3px;
+  }
+  .chart-tooltip .tt-sub{
+    font-size:10px;
+    opacity:0.75;
+    margin-left:4px;
+  }
+  .chart-tooltip .tt-divider{
+    border-top:1px solid rgba(255,255,255,0.14);
+    padding-top:4px;
+    margin-top:5px;
   }
 
   /* ---------- Monthly Breakdown Card (Chia theo mỗi tháng chi và thu) ---------- */
@@ -1026,23 +1134,50 @@
     </div>
   </div>
 
-  <!-- BIỂU ĐỒ ĐƯỜNG THEO DÕI THU VÀ CHI -->
+  <!-- BIỂU ĐỒ ĐƯỜNG THEO DÕI THU VÀ CHI THEO TỪNG THÁNG -->
   <div class="chart-card">
     <div class="chart-head">
-      <h2>Biểu đồ đường Thu & Chi</h2>
+      <div class="chart-title-wrap">
+        <h2>Biểu đồ đường Thu & Chi</h2>
+        <span class="chart-subtitle" id="chartSubtitle">Chi tiết từng ngày trong tháng đang chọn</span>
+      </div>
       <div class="chart-controls">
-        <div class="seg-group">
-          <button type="button" class="seg-btn active" id="chartModeMonthBtn">Theo tháng</button>
-          <button type="button" class="seg-btn" id="chartModeDayBtn">Theo ngày</button>
+        <div class="month-nav-group" id="chartMonthNavGroup">
+          <button type="button" class="month-nav-btn" id="chartPrevMonthBtn" title="Tháng trước">◀</button>
+          <select class="chart-month-select" id="chartMonthSelect" aria-label="Chọn tháng hiển thị biểu đồ"></select>
+          <button type="button" class="month-nav-btn" id="chartNextMonthBtn" title="Tháng sau">▶</button>
         </div>
-        <select class="chart-month-select" id="chartDayMonthSelect" style="display:none;"></select>
+        <div class="seg-group">
+          <button type="button" class="seg-btn active" id="chartModeSingleMonthBtn">Từng tháng</button>
+          <button type="button" class="seg-btn" id="chartModeAllMonthsBtn">Tất cả tháng</button>
+        </div>
       </div>
     </div>
-    <div class="chart-legend">
-      <span class="legend-item"><span class="legend-dot" style="background:var(--stamp-green);"></span> Tổng Thu</span>
-      <span class="legend-item"><span class="legend-dot" style="background:var(--stamp-red);"></span> Tổng Chi</span>
-      <span class="legend-item" id="legendLimitItem" style="display:none;"><span class="legend-line-dash"></span> Giới hạn chi/tháng</span>
+
+    <div class="chart-month-summary" id="chartMonthSummary">
+      <div class="cms-item">
+        <span class="cms-label" id="cmsIncomeLabel">Tổng thu tháng</span>
+        <span class="cms-val in" id="cmsIncomeVal">+0 ₫</span>
+      </div>
+      <div class="cms-item">
+        <span class="cms-label" id="cmsExpenseLabel">Tổng chi tháng</span>
+        <span class="cms-val out" id="cmsExpenseVal">−0 ₫</span>
+      </div>
+      <div class="cms-item">
+        <span class="cms-label">Chênh lệch tháng</span>
+        <span class="cms-val" id="cmsNetVal">0 ₫</span>
+      </div>
     </div>
+
+    <div class="chart-legend">
+      <div class="legend-left">
+        <span class="legend-item"><span class="legend-dot" style="background:var(--stamp-green);"></span> Tổng Thu</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--stamp-red);"></span> Tổng Chi</span>
+        <span class="legend-item" id="legendLimitItem" style="display:none;"><span class="legend-line-dash"></span> Giới hạn chi/tháng</span>
+      </div>
+      <span class="hover-hint">Di chuột vào đường để xem thông số</span>
+    </div>
+
     <div class="chart-canvas-wrap" id="chartWrap">
       <canvas id="trendCanvas"></canvas>
       <div class="chart-tooltip" id="chartTooltip"></div>
@@ -1053,7 +1188,7 @@
   <div class="monthly-card">
     <div class="monthly-head">
       <h2>Tổng hợp Thu & Chi theo từng tháng</h2>
-      <span class="monthly-sub">Bấm vào một tháng để lọc lịch sử bên dưới</span>
+      <span class="monthly-sub">Bấm vào một tháng để xem biểu đồ & giao dịch tháng đó</span>
     </div>
     <div class="monthly-table-wrap">
       <table class="monthly-table">
@@ -1122,10 +1257,12 @@
 
   // Trạng thái hiển thị UI (không làm thay đổi cấu trúc dữ liệu gốc)
   let useCommaFormat = localStorage.getItem(COMMA_PREF_KEY) !== 'false';
-  let chartMode = 'month'; // 'month' | 'day'
+  let chartMode = 'singleMonth'; // 'singleMonth' (mặc định hiển thị theo từng tháng chọn) | 'allMonths'
   let selectedChartMonthKey = getMonthKey(Date.now());
   let selectedLedgerMonth = 'all';
   let chartPointsCache = [];
+  let hoveredPointIndex = -1;
+  let cachedMonthsAsc = [];
 
   if(SYNC_ENABLED){
     try{
@@ -1218,7 +1355,6 @@
       const formatted = formatInputString(oldVal);
       inputEl.value = formatted;
 
-      // Đặt lại vị trí con trỏ hợp lý sau khi chèn dấu phẩy
       if(digitsBeforeCursor === 0){
         inputEl.setSelectionRange(0, 0);
       } else {
@@ -1318,9 +1454,19 @@
     budgetAlertBanner: document.getElementById('budgetAlertBanner'),
     monthlyTableBody: document.getElementById('monthlyTableBody'),
     ledgerMonthFilter: document.getElementById('ledgerMonthFilter'),
-    chartModeMonthBtn: document.getElementById('chartModeMonthBtn'),
-    chartModeDayBtn: document.getElementById('chartModeDayBtn'),
-    chartDayMonthSelect: document.getElementById('chartDayMonthSelect'),
+    chartSubtitle: document.getElementById('chartSubtitle'),
+    chartMonthNavGroup: document.getElementById('chartMonthNavGroup'),
+    chartPrevMonthBtn: document.getElementById('chartPrevMonthBtn'),
+    chartMonthSelect: document.getElementById('chartMonthSelect'),
+    chartNextMonthBtn: document.getElementById('chartNextMonthBtn'),
+    chartModeSingleMonthBtn: document.getElementById('chartModeSingleMonthBtn'),
+    chartModeAllMonthsBtn: document.getElementById('chartModeAllMonthsBtn'),
+    chartMonthSummary: document.getElementById('chartMonthSummary'),
+    cmsIncomeLabel: document.getElementById('cmsIncomeLabel'),
+    cmsIncomeVal: document.getElementById('cmsIncomeVal'),
+    cmsExpenseLabel: document.getElementById('cmsExpenseLabel'),
+    cmsExpenseVal: document.getElementById('cmsExpenseVal'),
+    cmsNetVal: document.getElementById('cmsNetVal'),
     legendLimitItem: document.getElementById('legendLimitItem'),
     chartWrap: document.getElementById('chartWrap'),
     trendCanvas: document.getElementById('trendCanvas'),
@@ -1361,7 +1507,6 @@
       }
     });
 
-    // Sắp xếp tăng dần theo thời gian cho biểu đồ, giảm dần cho bảng
     const monthsAsc = Array.from(monthMap.values()).sort((a,b) => a.key.localeCompare(b.key));
     const monthsDesc = monthsAsc.slice().reverse();
     const currentMonthData = monthMap.get(currentMonthKey) || { key: currentMonthKey, income: 0, expense: 0, count: 0 };
@@ -1372,7 +1517,8 @@
       currentMonthKey,
       currentMonthExpense: currentMonthData.expense,
       monthsAsc,
-      monthsDesc
+      monthsDesc,
+      monthMap
     };
   }
 
@@ -1420,7 +1566,7 @@
     monthsDesc.forEach(m => {
       const net = m.income - m.expense;
       const tr = document.createElement('tr');
-      if(selectedLedgerMonth === m.key) tr.classList.add('selected-month');
+      if(selectedChartMonthKey === m.key && chartMode === 'singleMonth') tr.classList.add('selected-month');
       tr.dataset.month = m.key;
 
       let limitHtml = '<span style="color:var(--muted);font-size:12px;">—</span>';
@@ -1451,7 +1597,7 @@
     });
   }
 
-  function syncMonthSelectors(monthsDesc, currentMonthKey){
+  function syncMonthSelectors(monthsDesc, monthsAsc, currentMonthKey){
     // Cập nhật dropdown lọc lịch sử
     const prevLedgerVal = selectedLedgerMonth;
     el.ledgerMonthFilter.innerHTML = '<option value="all">Tất cả các tháng</option>';
@@ -1468,50 +1614,82 @@
       el.ledgerMonthFilter.value = 'all';
     }
 
-    // Cập nhật dropdown chọn tháng cho biểu đồ theo ngày
-    el.chartDayMonthSelect.innerHTML = '';
+    // Cập nhật dropdown chọn tháng cho biểu đồ (mặc định là tháng hiện tại hoặc tháng đang chọn)
+    el.chartMonthSelect.innerHTML = '';
     monthsDesc.forEach(m => {
       const opt = document.createElement('option');
       opt.value = m.key;
-      opt.textContent = formatMonthLabel(m.key);
-      el.chartDayMonthSelect.appendChild(opt);
+      opt.textContent = formatMonthLabel(m.key) + (m.key === currentMonthKey ? ' (Hiện tại)' : '');
+      el.chartMonthSelect.appendChild(opt);
     });
     if(monthsDesc.some(m => m.key === selectedChartMonthKey)){
-      el.chartDayMonthSelect.value = selectedChartMonthKey;
+      el.chartMonthSelect.value = selectedChartMonthKey;
     } else {
       selectedChartMonthKey = currentMonthKey;
-      el.chartDayMonthSelect.value = currentMonthKey;
+      el.chartMonthSelect.value = currentMonthKey;
+    }
+
+    // Cập nhật trạng thái nút ◀ (tháng cũ hơn) và ▶ (tháng mới hơn)
+    const ascIdx = monthsAsc.findIndex(m => m.key === selectedChartMonthKey);
+    el.chartPrevMonthBtn.disabled = ascIdx <= 0;
+    el.chartNextMonthBtn.disabled = ascIdx === -1 || ascIdx >= monthsAsc.length - 1;
+  }
+
+  function updateChartHeaderAndSummary(analytics){
+    if(chartMode === 'singleMonth'){
+      el.chartMonthNavGroup.style.display = 'inline-flex';
+      el.chartMonthSummary.style.display = 'grid';
+      el.chartSubtitle.textContent = `Diễn biến Thu & Chi theo từng ngày của ${formatMonthLabel(selectedChartMonthKey)}`;
+
+      const mBucket = analytics.monthMap.get(selectedChartMonthKey) || { income: 0, expense: 0 };
+      const net = mBucket.income - mBucket.expense;
+      el.cmsIncomeLabel.textContent = `Thu ${formatMonthLabel(selectedChartMonthKey)}`;
+      el.cmsExpenseLabel.textContent = `Chi ${formatMonthLabel(selectedChartMonthKey)}`;
+      el.cmsIncomeVal.textContent = `+${formatVND(mBucket.income)} ₫`;
+      el.cmsExpenseVal.textContent = `−${formatVND(mBucket.expense)} ₫`;
+      el.cmsNetVal.textContent = `${net >= 0 ? '+' : '−'}${formatVND(Math.abs(net))} ₫`;
+      el.cmsNetVal.style.color = net >= 0 ? 'var(--stamp-green)' : 'var(--stamp-red)';
+    } else {
+      el.chartMonthNavGroup.style.display = 'none';
+      el.chartMonthSummary.style.display = 'none';
+      el.chartSubtitle.textContent = 'So sánh tổng Thu & Chi qua tất cả các tháng';
     }
   }
 
-  // Vẽ biểu đồ đường Thu & Chi bằng Canvas sắc nét
+  // Xây dựng chuỗi điểm dữ liệu cho biểu đồ
   function buildChartSeries(monthsAsc){
-    if(chartMode === 'month'){
+    if(chartMode === 'allMonths'){
       return monthsAsc.map(m => ({
         label: m.key.split('-')[1] + '/' + m.key.split('-')[0].slice(2),
         fullLabel: formatMonthLabel(m.key),
         income: m.income,
-        expense: m.expense
+        expense: m.expense,
+        incomeCount: null,
+        expenseCount: null,
+        cumExpense: null,
+        isFuture: false
       }));
     } else {
-      // Theo từng ngày trong selectedChartMonthKey
       const [yStr, mStr] = selectedChartMonthKey.split('-');
       const year = parseInt(yStr, 10);
       const monthIdx = parseInt(mStr, 10) - 1;
       const daysInMonth = new Date(year, monthIdx + 1, 0).getDate();
       const now = new Date();
-      const maxDay = (now.getFullYear() === year && now.getMonth() === monthIdx)
-        ? Math.max(now.getDate(), 1)
-        : daysInMonth;
+      const isCurrentMonth = (now.getFullYear() === year && now.getMonth() === monthIdx);
+      const todayDate = now.getDate();
 
       const dayBuckets = [];
-      for(let d = 1; d <= maxDay; d++){
+      for(let d = 1; d <= daysInMonth; d++){
         dayBuckets.push({
           day: d,
           label: `${String(d).padStart(2,'0')}/${mStr}`,
           fullLabel: `Ngày ${String(d).padStart(2,'0')}/${mStr}/${yStr}`,
           income: 0,
-          expense: 0
+          expense: 0,
+          incomeCount: 0,
+          expenseCount: 0,
+          cumExpense: 0,
+          isFuture: isCurrentMonth && d > todayDate
         });
       }
 
@@ -1519,21 +1697,35 @@
         if(getMonthKey(tx.ts) === selectedChartMonthKey){
           const d = new Date(tx.ts).getDate();
           if(d >= 1 && d <= dayBuckets.length){
-            if(tx.type === 'income') dayBuckets[d - 1].income += tx.amount;
-            else dayBuckets[d - 1].expense += tx.amount;
+            if(tx.type === 'income'){
+              dayBuckets[d - 1].income += tx.amount;
+              dayBuckets[d - 1].incomeCount += 1;
+            } else {
+              dayBuckets[d - 1].expense += tx.amount;
+              dayBuckets[d - 1].expenseCount += 1;
+            }
           }
         }
       });
+
+      let runningExpense = 0;
+      dayBuckets.forEach(b => {
+        runningExpense += b.expense;
+        b.cumExpense = runningExpense;
+      });
+
       return dayBuckets;
     }
   }
 
+  // Vẽ biểu đồ đường Thu & Chi + điểm nổi bật khi di chuột
   function drawLineChart(monthsAsc){
+    cachedMonthsAsc = monthsAsc;
     const canvas = el.trendCanvas;
     const wrap = el.chartWrap;
     const rect = wrap.getBoundingClientRect();
     const width = Math.max(280, Math.floor(rect.width));
-    const height = 240;
+    const height = 255;
     const dpr = window.devicePixelRatio || 1;
 
     canvas.width = width * dpr;
@@ -1546,12 +1738,12 @@
     ctx.clearRect(0, 0, width, height);
 
     const series = buildChartSeries(monthsAsc);
-    const showLimitLine = (chartMode === 'month' && state.monthlyLimit && state.monthlyLimit > 0);
+    const showLimitLine = (chartMode === 'allMonths' && state.monthlyLimit && state.monthlyLimit > 0);
     el.legendLimitItem.style.display = showLimitLine ? 'inline-flex' : 'none';
 
     const padLeft = 56;
     const padRight = 18;
-    const padTop = 18;
+    const padTop = 20;
     const padBottom = 32;
     const plotW = width - padLeft - padRight;
     const plotH = height - padTop - padBottom;
@@ -1565,7 +1757,7 @@
       maxVal = state.monthlyLimit;
     }
     if(maxVal <= 0) maxVal = 1000000;
-    else maxVal = maxVal * 1.15;
+    else maxVal = maxVal * 1.16;
 
     // Lưới ngang & nhãn trục Y
     const gridSteps = 4;
@@ -1589,7 +1781,7 @@
       ctx.fillText(formatCompactVND(val), padLeft - 8, y);
     }
 
-    // Đường nét đứt giới hạn chi tiêu tháng (khi ở chế độ Theo tháng)
+    // Đường nét đứt giới hạn chi tiêu tháng (ở chế độ Tất cả tháng)
     if(showLimitLine){
       const limitY = padTop + plotH - (state.monthlyLimit / maxVal) * plotH;
       ctx.save();
@@ -1614,65 +1806,112 @@
       return { ...pt, x, yIncome, yExpense };
     });
 
-    // Nhãn trục X (giãn cách tự động để không chồng chữ)
+    // Nhãn trục X (giãn cách tự động, tránh chồng chữ cuối trục)
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
     ctx.fillStyle = '#8a8368';
-    const maxLabels = Math.max(2, Math.floor(plotW / 54));
+    const maxLabels = Math.max(2, Math.floor(plotW / 56));
     const step = Math.ceil(n / maxLabels);
+    let lastDrawnX = -999;
     chartPointsCache.forEach((pt, idx) => {
-      if(idx % step === 0 || idx === n - 1){
-        ctx.fillText(pt.label, pt.x, padTop + plotH + 9);
+      const isLast = (idx === n - 1);
+      if(idx % step === 0 || isLast){
+        if(pt.x - lastDrawnX >= 42){
+          ctx.fillText(pt.label, pt.x, padTop + plotH + 9);
+          lastDrawnX = pt.x;
+        }
       }
     });
 
-    // Hàm vẽ đường + vùng tô mờ + chấm tròn
-    function renderSeriesLine(keyY, strokeColor, fillTopColor){
-      if(chartPointsCache.length === 0) return;
+    // Chỉ vẽ đường nối liền mạch tới ngày hiện tại (không kéo đường phẳng sang các ngày tương lai chưa tới)
+    const activePoints = chartPointsCache.filter(pt => !pt.isFuture);
+    const pointsToDraw = activePoints.length > 0 ? activePoints : chartPointsCache;
 
-      // Vùng gradient dưới đường
-      if(chartPointsCache.length > 1){
+    function renderSeriesLine(keyY, valKey, strokeColor, fillTopColor){
+      if(pointsToDraw.length === 0) return;
+
+      if(pointsToDraw.length > 1){
         const grad = ctx.createLinearGradient(0, padTop, 0, padTop + plotH);
         grad.addColorStop(0, fillTopColor);
         grad.addColorStop(1, 'rgba(251,248,239,0)');
         ctx.fillStyle = grad;
         ctx.beginPath();
-        ctx.moveTo(chartPointsCache[0].x, padTop + plotH);
-        chartPointsCache.forEach(pt => ctx.lineTo(pt.x, pt[keyY]));
-        ctx.lineTo(chartPointsCache[chartPointsCache.length - 1].x, padTop + plotH);
+        ctx.moveTo(pointsToDraw[0].x, padTop + plotH);
+        pointsToDraw.forEach(pt => ctx.lineTo(pt.x, pt[keyY]));
+        ctx.lineTo(pointsToDraw[pointsToDraw.length - 1].x, padTop + plotH);
         ctx.closePath();
         ctx.fill();
+
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = 2.4;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        pointsToDraw.forEach((pt, i) => {
+          if(i === 0) ctx.moveTo(pt.x, pt[keyY]);
+          else ctx.lineTo(pt.x, pt[keyY]);
+        });
+        ctx.stroke();
       }
 
-      // Đường nối
-      ctx.strokeStyle = strokeColor;
-      ctx.lineWidth = 2.4;
-      ctx.lineJoin = 'round';
-      ctx.lineCap = 'round';
-      ctx.beginPath();
-      chartPointsCache.forEach((pt, i) => {
-        if(i === 0) ctx.moveTo(pt.x, pt[keyY]);
-        else ctx.lineTo(pt.x, pt[keyY]);
-      });
-      ctx.stroke();
+      // Chấm tròn trên đường: ngày có phát sinh thu/chi chấm to rõ, ngày = 0 chấm nhỏ tinh gọn
+      pointsToDraw.forEach(pt => {
+        const hasActivity = pt[valKey] > 0;
+        const r = hasActivity ? (n > 20 ? 3.6 : 4.5) : (n > 20 ? 1.8 : 3);
 
-      // Điểm tròn
-      const dotRadius = n > 20 ? 2.6 : 4;
-      chartPointsCache.forEach(pt => {
-        ctx.fillStyle = '#fbf8ef';
-        ctx.beginPath();
-        ctx.arc(pt.x, pt[keyY], dotRadius + 1.2, 0, Math.PI * 2);
-        ctx.fill();
+        if(hasActivity){
+          ctx.fillStyle = '#fbf8ef';
+          ctx.beginPath();
+          ctx.arc(pt.x, pt[keyY], r + 1.3, 0, Math.PI * 2);
+          ctx.fill();
+        }
 
         ctx.fillStyle = strokeColor;
         ctx.beginPath();
-        ctx.arc(pt.x, pt[keyY], dotRadius, 0, Math.PI * 2);
+        ctx.arc(pt.x, pt[keyY], r, 0, Math.PI * 2);
         ctx.fill();
       });
     }
 
-    renderSeriesLine('yIncome', '#2f6b4f', 'rgba(47,107,79,0.16)');
-    renderSeriesLine('yExpense', '#a13d3d', 'rgba(161,61,61,0.14)');
+    renderSeriesLine('yIncome', 'income', '#2f6b4f', 'rgba(47,107,79,0.16)');
+    renderSeriesLine('yExpense', 'expense', '#a13d3d', 'rgba(161,61,61,0.14)');
+
+    // Hiệu ứng khi di chuột vào điểm trên đường biểu đồ
+    if(hoveredPointIndex >= 0 && hoveredPointIndex < chartPointsCache.length){
+      const hp = chartPointsCache[hoveredPointIndex];
+
+      // Đường gióng dọc nét đứt
+      ctx.save();
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = 'rgba(27, 58, 47, 0.45)';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(hp.x, padTop);
+      ctx.lineTo(hp.x, padTop + plotH);
+      ctx.stroke();
+      ctx.restore();
+
+      // Vòng sáng nổi bật tại điểm Thu và điểm Chi
+      [
+        { y: hp.yIncome, color: '#2f6b4f', halo: 'rgba(47, 107, 79, 0.24)' },
+        { y: hp.yExpense, color: '#a13d3d', halo: 'rgba(161, 61, 61, 0.24)' }
+      ].forEach(marker => {
+        ctx.fillStyle = marker.halo;
+        ctx.beginPath();
+        ctx.arc(hp.x, marker.y, 9, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(hp.x, marker.y, 5.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = marker.color;
+        ctx.beginPath();
+        ctx.arc(hp.x, marker.y, 3.6, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
   }
 
   function handleChartPointer(clientX){
@@ -1680,34 +1919,82 @@
     const rect = el.trendCanvas.getBoundingClientRect();
     const relX = clientX - rect.left;
 
-    let closest = chartPointsCache[0];
-    let minDist = Math.abs(relX - closest.x);
-    for(let i = 1; i < chartPointsCache.length; i++){
-      const d = Math.abs(relX - chartPointsCache[i].x);
+    // Ưu tiên bắt các điểm không thuộc ngày tương lai (nếu có)
+    const selectablePoints = chartPointsCache
+      .map((pt, idx) => ({ pt, idx }))
+      .filter(item => !item.pt.isFuture);
+    const pool = selectablePoints.length > 0
+      ? selectablePoints
+      : chartPointsCache.map((pt, idx) => ({ pt, idx }));
+
+    let closestItem = pool[0];
+    let minDist = Math.abs(relX - closestItem.pt.x);
+    for(let i = 1; i < pool.length; i++){
+      const d = Math.abs(relX - pool[i].pt.x);
       if(d < minDist){
         minDist = d;
-        closest = chartPointsCache[i];
+        closestItem = pool[i];
       }
     }
 
+    const closest = closestItem.pt;
+    if(hoveredPointIndex !== closestItem.idx){
+      hoveredPointIndex = closestItem.idx;
+      drawLineChart(cachedMonthsAsc);
+    }
+
     const net = closest.income - closest.expense;
+    const inCountTag = (closest.incomeCount && closest.incomeCount > 0)
+      ? `<span class="tt-sub">(${closest.incomeCount} lần)</span>` : '';
+    const outCountTag = (closest.expenseCount && closest.expenseCount > 0)
+      ? `<span class="tt-sub">(${closest.expenseCount} lần)</span>` : '';
+
+    let extraLimitHtml = '';
+    if(chartMode === 'singleMonth' && closest.cumExpense !== null){
+      const limitStr = (state.monthlyLimit && state.monthlyLimit > 0)
+        ? ` / ${formatVND(state.monthlyLimit)} ₫`
+        : '';
+      extraLimitHtml = `
+        <div class="tt-row" style="opacity:0.88;font-size:10.5px;">
+          <span>Lũy kế chi tháng:</span>
+          <span>${formatVND(closest.cumExpense)} ₫${limitStr}</span>
+        </div>
+      `;
+    }
+
     el.chartTooltip.innerHTML = `
       <div class="tt-title">${closest.fullLabel}</div>
-      <div class="tt-row"><span style="color:#9be7c0;">Thu:</span><span>+${formatVND(closest.income)} ₫</span></div>
-      <div class="tt-row"><span style="color:#f6aaaa;">Chi:</span><span>−${formatVND(closest.expense)} ₫</span></div>
-      <div class="tt-row" style="border-top:1px solid rgba(255,255,255,0.12);padding-top:3px;margin-top:3px;">
-        <span>Còn:</span><span>${net >= 0 ? '+' : '−'}${formatVND(Math.abs(net))} ₫</span>
+      <div class="tt-row">
+        <span style="color:#9be7c0;">● Thu${inCountTag}:</span>
+        <span style="color:#9be7c0;font-weight:600;">+${formatVND(closest.income)} ₫</span>
       </div>
+      <div class="tt-row">
+        <span style="color:#f6aaaa;">● Chi${outCountTag}:</span>
+        <span style="color:#f6aaaa;font-weight:600;">−${formatVND(closest.expense)} ₫</span>
+      </div>
+      <div class="tt-row tt-divider">
+        <span>Chênh lệch:</span>
+        <span style="font-weight:600;">${net >= 0 ? '+' : '−'}${formatVND(Math.abs(net))} ₫</span>
+      </div>
+      ${extraLimitHtml}
     `;
     el.chartTooltip.classList.add('show');
 
-    const ttWidth = el.chartTooltip.offsetWidth || 165;
-    let leftPos = closest.x + 12;
+    const ttWidth = el.chartTooltip.offsetWidth || 195;
+    let leftPos = closest.x + 14;
     if(leftPos + ttWidth > rect.width - 6){
-      leftPos = Math.max(6, closest.x - ttWidth - 12);
+      leftPos = Math.max(6, closest.x - ttWidth - 14);
     }
     el.chartTooltip.style.left = leftPos + 'px';
-    el.chartTooltip.style.top = '12px';
+    el.chartTooltip.style.top = '10px';
+  }
+
+  function clearChartHover(){
+    if(hoveredPointIndex !== -1){
+      hoveredPointIndex = -1;
+      drawLineChart(cachedMonthsAsc);
+    }
+    el.chartTooltip.classList.remove('show');
   }
 
   function render(){
@@ -1719,8 +2006,10 @@
     el.totalIncomeValue.textContent = formatVND(analytics.totalIncome);
 
     renderBudget(analytics.currentMonthExpense, analytics.currentMonthKey);
-    syncMonthSelectors(analytics.monthsDesc, analytics.currentMonthKey);
+    syncMonthSelectors(analytics.monthsDesc, analytics.monthsAsc, analytics.currentMonthKey);
+    updateChartHeaderAndSummary(analytics);
     renderMonthlyTable(analytics.monthsDesc, analytics.currentMonthKey);
+    hoveredPointIndex = -1;
     drawLineChart(analytics.monthsAsc);
 
     // Lọc danh sách giao dịch theo tháng nếu người dùng chọn
@@ -1796,7 +2085,6 @@
       if(!proceed) return;
     }
 
-    // Cảnh báo nếu khoản chi vượt giới hạn tháng
     if(type === 'expense' && state.monthlyLimit && state.monthlyLimit > 0){
       const analytics = computeAnalytics();
       const projected = analytics.currentMonthExpense + amount;
@@ -1806,16 +2094,18 @@
       }
     }
 
+    const nowTs = Date.now();
     const tx = {
-      id: Date.now() + '-' + Math.random().toString(36).slice(2,7),
+      id: nowTs + '-' + Math.random().toString(36).slice(2,7),
       type,
       name,
       amount,
-      ts: Date.now()
+      ts: nowTs
     };
     state.transactions.push(tx);
     state.balance = type === 'expense' ? state.balance - amount : state.balance + amount;
     if(!state.initialized) state.initialized = true;
+    selectedChartMonthKey = getMonthKey(nowTs);
     persist();
     render();
 
@@ -1964,52 +2254,82 @@
     });
   });
 
-  // Sự kiện biểu đồ đường
-  el.chartModeMonthBtn.addEventListener('click', () => {
-    chartMode = 'month';
-    el.chartModeMonthBtn.classList.add('active');
-    el.chartModeDayBtn.classList.remove('active');
-    el.chartDayMonthSelect.style.display = 'none';
-    el.chartTooltip.classList.remove('show');
-    drawLineChart(computeAnalytics().monthsAsc);
+  // Sự kiện biểu đồ đường theo từng tháng
+  function selectChartMonth(mKey){
+    selectedChartMonthKey = mKey;
+    chartMode = 'singleMonth';
+    el.chartModeSingleMonthBtn.classList.add('active');
+    el.chartModeAllMonthsBtn.classList.remove('active');
+    clearChartHover();
+    render();
+  }
+
+  el.chartMonthSelect.addEventListener('change', () => {
+    selectChartMonth(el.chartMonthSelect.value);
   });
 
-  el.chartModeDayBtn.addEventListener('click', () => {
-    chartMode = 'day';
-    el.chartModeDayBtn.classList.add('active');
-    el.chartModeMonthBtn.classList.remove('active');
-    el.chartDayMonthSelect.style.display = 'inline-block';
-    el.chartTooltip.classList.remove('show');
-    drawLineChart(computeAnalytics().monthsAsc);
+  el.chartPrevMonthBtn.addEventListener('click', () => {
+    const analytics = computeAnalytics();
+    const idx = analytics.monthsAsc.findIndex(m => m.key === selectedChartMonthKey);
+    if(idx > 0){
+      selectChartMonth(analytics.monthsAsc[idx - 1].key);
+    }
   });
 
-  el.chartDayMonthSelect.addEventListener('change', () => {
-    selectedChartMonthKey = el.chartDayMonthSelect.value;
-    el.chartTooltip.classList.remove('show');
-    drawLineChart(computeAnalytics().monthsAsc);
+  el.chartNextMonthBtn.addEventListener('click', () => {
+    const analytics = computeAnalytics();
+    const idx = analytics.monthsAsc.findIndex(m => m.key === selectedChartMonthKey);
+    if(idx >= 0 && idx < analytics.monthsAsc.length - 1){
+      selectChartMonth(analytics.monthsAsc[idx + 1].key);
+    }
+  });
+
+  el.chartModeSingleMonthBtn.addEventListener('click', () => {
+    chartMode = 'singleMonth';
+    el.chartModeSingleMonthBtn.classList.add('active');
+    el.chartModeAllMonthsBtn.classList.remove('active');
+    clearChartHover();
+    render();
+  });
+
+  el.chartModeAllMonthsBtn.addEventListener('click', () => {
+    chartMode = 'allMonths';
+    el.chartModeAllMonthsBtn.classList.add('active');
+    el.chartModeSingleMonthBtn.classList.remove('active');
+    clearChartHover();
+    render();
   });
 
   el.trendCanvas.addEventListener('mousemove', e => handleChartPointer(e.clientX));
   el.trendCanvas.addEventListener('touchstart', e => {
     if(e.touches && e.touches[0]) handleChartPointer(e.touches[0].clientX);
   }, { passive: true });
-  el.trendCanvas.addEventListener('mouseleave', () => el.chartTooltip.classList.remove('show'));
-  window.addEventListener('resize', () => drawLineChart(computeAnalytics().monthsAsc));
+  el.trendCanvas.addEventListener('touchmove', e => {
+    if(e.touches && e.touches[0]) handleChartPointer(e.touches[0].clientX);
+  }, { passive: true });
+  el.trendCanvas.addEventListener('mouseleave', clearChartHover);
+  window.addEventListener('resize', () => drawLineChart(cachedMonthsAsc));
 
-  // Sự kiện chọn tháng từ bảng tổng hợp tháng hoặc dropdown
+  // Khi bấm vào một dòng tháng ở bảng tổng hợp: đồng thời chuyển biểu đồ sang tháng đó & lọc lịch sử
   el.monthlyTableBody.addEventListener('click', e => {
     const tr = e.target.closest('tr[data-month]');
     if(!tr) return;
     const mKey = tr.dataset.month;
+    selectedChartMonthKey = mKey;
+    chartMode = 'singleMonth';
+    el.chartModeSingleMonthBtn.classList.add('active');
+    el.chartModeAllMonthsBtn.classList.remove('active');
     selectedLedgerMonth = (selectedLedgerMonth === mKey) ? 'all' : mKey;
+    clearChartHover();
     render();
-    showToast(selectedLedgerMonth === 'all'
-      ? 'Đang hiển thị tất cả các tháng'
-      : `Đang lọc giao dịch ${formatMonthLabel(selectedLedgerMonth)}`);
+    showToast(`Đang xem biểu đồ ${formatMonthLabel(mKey)}`);
   });
 
   el.ledgerMonthFilter.addEventListener('change', () => {
     selectedLedgerMonth = el.ledgerMonthFilter.value;
+    if(selectedLedgerMonth !== 'all'){
+      selectedChartMonthKey = selectedLedgerMonth;
+    }
     render();
   });
 
