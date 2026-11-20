@@ -1,0 +1,2066 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sổ Quỹ — Quản lý chi tiêu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1b3a2f;          /* deep ledger green */
+    --ink-soft:#2f5445;
+    --paper:#fbf8ef;         /* passbook paper */
+    --paper-line:#e3ddc8;
+    --brass:#b8923f;         /* brass / gold seal */
+    --brass-soft:#e9d9ab;
+    --stamp-red:#a13d3d;     /* expense stamp */
+    --stamp-green:#2f6b4f;   /* income stamp */
+    --muted:#8a8368;
+    --shadow: 0 18px 40px -20px rgba(27,58,47,0.35);
+    --radius: 14px;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 15% 0%, rgba(184,146,63,0.10), transparent 45%),
+      radial-gradient(circle at 100% 30%, rgba(27,58,47,0.08), transparent 50%),
+      var(--paper);
+    background-attachment:fixed;
+    font-family:'Be Vietnam Pro', system-ui, sans-serif;
+    color:var(--ink);
+    min-height:100vh;
+    padding:28px 16px 80px;
+  }
+
+  .wrap{max-width:780px; margin:0 auto;}
+
+  /* ---------- Header / passbook cover + Tổng Thu / Chi ở trên cùng ---------- */
+  header.cover{
+    background:linear-gradient(160deg, var(--ink) 0%, var(--ink-soft) 100%);
+    color:var(--paper);
+    border-radius: var(--radius);
+    padding:26px 26px 22px;
+    box-shadow:var(--shadow);
+    position:relative;
+    overflow:hidden;
+  }
+  header.cover::before{
+    content:"";
+    position:absolute; inset:0;
+    background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 34px);
+    pointer-events:none;
+  }
+  .cover-top-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--brass-soft);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .eyebrow::before{
+    content:"";
+    width:7px;height:7px;border-radius:50%;
+    background:var(--brass);
+    box-shadow:0 0 0 3px rgba(184,146,63,0.25);
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:25px;
+    margin:8px 0 16px;
+    letter-spacing:.01em;
+  }
+
+  /* Tổng Thu & Tổng Chi nổi bật ở trên cùng */
+  .top-totals-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-bottom:16px;
+  }
+  @media (max-width:520px){ .top-totals-grid{grid-template-columns:1fr;} }
+  .top-total-box{
+    background:rgba(251,248,239,0.08);
+    border:1px solid rgba(251,248,239,0.16);
+    border-radius:11px;
+    padding:12px 15px;
+    backdrop-filter:blur(4px);
+  }
+  .top-total-box.income-box{
+    border-left:3px solid #72c49b;
+  }
+  .top-total-box.expense-box{
+    border-left:3px solid #e68a8a;
+  }
+  .top-total-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:rgba(251,248,239,0.72);
+    margin-bottom:5px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .top-total-value{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(20px, 4.5vw, 25px);
+    line-height:1.15;
+  }
+  .top-total-box.income-box .top-total-value{color:#9be7c0;}
+  .top-total-box.expense-box .top-total-value{color:#f6aaaa;}
+  .top-total-value .vnd-tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.55em;
+    font-weight:500;
+    opacity:0.8;
+    margin-left:4px;
+  }
+
+  .balance-block{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:14px;
+    border-top:1px dashed rgba(251,248,239,0.25);
+    padding-top:15px;
+  }
+  .balance-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:rgba(251,248,239,0.65);
+    margin-bottom:5px;
+  }
+  .balance-figure{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(28px, 7.5vw, 42px);
+    line-height:1;
+    letter-spacing:-0.01em;
+  }
+  .balance-figure .vnd{
+    font-size:0.4em;
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:500;
+    color:var(--brass-soft);
+    margin-left:6px;
+  }
+  .seal{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    letter-spacing:.08em;
+    text-align:right;
+    color:rgba(251,248,239,0.55);
+    line-height:1.5;
+  }
+
+  /* ---------- Sync control ---------- */
+  .sync-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-top:14px;
+    flex-wrap:wrap;
+  }
+  .sync-status{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:.04em;
+    color:rgba(251,248,239,0.7);
+  }
+  .sync-status .led{
+    width:7px; height:7px; border-radius:50%;
+    background:#8a8368;
+    box-shadow:0 0 0 3px rgba(138,131,104,0.2);
+  }
+  .sync-status.on .led{background:#52b788; box-shadow:0 0 0 3px rgba(82,183,136,0.28);}
+  .sync-status.off .led{background:rgba(251,248,239,0.35);}
+  .sync-btn{
+    width:auto;
+    background:transparent;
+    border:1px solid rgba(251,248,239,0.35);
+    color:var(--paper);
+    font-size:12px;
+    padding:6px 12px;
+  }
+  .sync-btn:hover{background:rgba(251,248,239,0.1); opacity:1;}
+
+  .sync-panel{
+    margin-top:16px;
+    background:var(--paper);
+    border:1px solid var(--paper-line);
+    border-radius:var(--radius);
+    padding:18px;
+    display:none;
+    box-shadow:0 10px 24px -18px rgba(27,58,47,0.4);
+  }
+  .sync-panel.show{display:block;}
+  .sync-panel h3{
+    font-family:'Fraunces', serif;
+    font-size:16px;
+    margin:0 0 6px;
+  }
+  .sync-panel p{
+    font-size:13px;
+    color:var(--muted);
+    margin:0 0 14px;
+    line-height:1.5;
+  }
+  .sync-panel .setup-form{display:flex; gap:8px; flex-wrap:wrap;}
+  .sync-panel .setup-form input{flex:1 1 200px;}
+  .sync-panel .setup-form button{width:auto; flex-shrink:0;}
+  .sync-connected-box{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+    background:var(--brass-soft);
+    border:1px solid var(--brass);
+    border-radius:9px;
+    padding:10px 14px;
+    margin-bottom:12px;
+  }
+  .sync-connected-box .code{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    font-weight:600;
+    color:#5c4a1e;
+  }
+  .sync-connected-box button{width:auto; background:var(--ink); color:var(--paper); font-size:12px; padding:6px 12px;}
+
+  /* ---------- Setup strip (first run) ---------- */
+  .setup{
+    margin-top:16px;
+    background:var(--brass-soft);
+    border:1px solid var(--brass);
+    border-radius:var(--radius);
+    padding:16px 18px;
+    display:none;
+    gap:12px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  .setup.show{display:flex;}
+  .setup p{
+    margin:0; flex:1 1 220px;
+    font-size:14px; color:#5c4a1e;
+  }
+  .setup .setup-form{display:flex; gap:8px; flex:1 1 260px;}
+
+  /* ---------- Comma Format Option Bar ---------- */
+  .format-bar{
+    margin-top:18px;
+    background:var(--paper);
+    border:1px solid var(--paper-line);
+    border-radius:var(--radius);
+    padding:12px 16px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+    box-shadow:0 8px 20px -18px rgba(27,58,47,0.35);
+  }
+  .format-bar-info{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+  .format-bar-title{
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--ink);
+  }
+  .format-bar-sub{
+    font-size:11.5px;
+    color:var(--muted);
+    font-family:'IBM Plex Mono', monospace;
+  }
+  .toggle-pill{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    cursor:pointer;
+    user-select:none;
+    background:rgba(27,58,47,0.05);
+    border:1px solid var(--paper-line);
+    border-radius:999px;
+    padding:5px 12px 5px 7px;
+    transition:all .18s ease;
+  }
+  .toggle-pill:hover{border-color:var(--brass);}
+  .toggle-pill input{display:none;}
+  .toggle-track{
+    width:36px;
+    height:20px;
+    border-radius:999px;
+    background:#cfc8b2;
+    position:relative;
+    transition:background .2s ease;
+    flex-shrink:0;
+  }
+  .toggle-track::after{
+    content:"";
+    position:absolute;
+    top:2px; left:2px;
+    width:16px; height:16px;
+    border-radius:50%;
+    background:#fff;
+    box-shadow:0 1px 3px rgba(0,0,0,0.2);
+    transition:transform .2s ease;
+  }
+  .toggle-pill input:checked + .toggle-track{
+    background:var(--stamp-green);
+  }
+  .toggle-pill input:checked + .toggle-track::after{
+    transform:translateX(16px);
+  }
+  .toggle-state-text{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    font-weight:600;
+    color:var(--ink);
+  }
+
+  /* ---------- Card / entry panels ---------- */
+  .panels{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+    margin-top:16px;
+  }
+  @media (max-width:580px){ .panels{grid-template-columns:1fr;} }
+
+  .panel{
+    background:var(--paper);
+    border:1px solid var(--paper-line);
+    border-radius:var(--radius);
+    padding:18px 18px 16px;
+    box-shadow:0 10px 24px -18px rgba(27,58,47,0.4);
+    position:relative;
+  }
+  .panel.expense{border-top:3px solid var(--stamp-red);}
+  .panel.income{border-top:3px solid var(--stamp-green);}
+
+  .panel-title{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .panel.expense .panel-title{color:var(--stamp-red);}
+  .panel.income .panel-title{color:var(--stamp-green);}
+  .panel-title .dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+
+  label{
+    display:block;
+    font-size:12px;
+    color:var(--muted);
+    margin-bottom:4px;
+    font-weight:500;
+  }
+  .field{margin-bottom:12px;}
+  input[type="text"], input[type="number"], select{
+    width:100%;
+    font-family:'Be Vietnam Pro', sans-serif;
+    font-size:15px;
+    padding:10px 12px;
+    border:1px solid var(--paper-line);
+    border-radius:9px;
+    background:#fff;
+    color:var(--ink);
+    outline:none;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  input.amount-input{
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:600;
+    font-size:15.5px;
+    letter-spacing:.02em;
+  }
+  input[type="text"]:focus, input[type="number"]:focus, select:focus{
+    border-color:var(--ink-soft);
+    box-shadow:0 0 0 3px rgba(47,84,69,0.12);
+  }
+
+  /* Quick amount chips */
+  .quick-chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:5px;
+    margin-top:7px;
+  }
+  .chip-btn{
+    width:auto;
+    padding:4px 8px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    font-weight:500;
+    border-radius:6px;
+    background:rgba(27,58,47,0.05);
+    border:1px solid var(--paper-line);
+    color:var(--ink-soft);
+  }
+  .chip-btn:hover{
+    background:var(--brass-soft);
+    border-color:var(--brass);
+    color:var(--ink);
+    opacity:1;
+  }
+
+  button{
+    font-family:'Be Vietnam Pro', sans-serif;
+    font-weight:600;
+    font-size:14px;
+    border:none;
+    border-radius:9px;
+    padding:10px 16px;
+    cursor:pointer;
+    transition:transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+    width:100%;
+  }
+  button:active{transform:scale(0.98);}
+  .btn-expense{background:var(--stamp-red); color:#fff;}
+  .btn-income{background:var(--stamp-green); color:#fff;}
+  .btn-setup{background:var(--ink); color:var(--paper); white-space:nowrap;}
+  button:hover{opacity:.92;}
+  button:focus-visible, input:focus-visible, select:focus-visible{outline:2px solid var(--brass); outline-offset:2px;}
+
+  /* ---------- Budget card (giới hạn chi tiêu hàng tháng) ---------- */
+  .budget-card{
+    margin-top:20px;
+    background:var(--paper);
+    border:1px solid var(--paper-line);
+    border-radius:var(--radius);
+    padding:18px;
+    box-shadow:0 10px 24px -18px rgba(27,58,47,0.4);
+  }
+  .budget-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:14px;
+  }
+  .budget-head h3{
+    font-family:'Fraunces', serif;
+    font-size:16.5px;
+    font-weight:600;
+    margin:0;
+  }
+  .budget-actions{display:flex; gap:8px; align-items:center;}
+  .budget-edit-btn{
+    width:auto;
+    background:transparent;
+    border:1px solid var(--paper-line);
+    color:var(--ink-soft);
+    font-size:12px;
+    padding:6px 12px;
+  }
+  .budget-edit-btn:hover{background:rgba(47,84,69,0.06); opacity:1;}
+  .budget-clear-btn{
+    width:auto;
+    background:transparent;
+    border:1px solid rgba(161,61,61,0.3);
+    color:var(--stamp-red);
+    font-size:12px;
+    padding:6px 10px;
+  }
+  .budget-clear-btn:hover{background:rgba(161,61,61,0.07); opacity:1;}
+  .budget-set{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;}
+  .budget-set input{flex:1 1 200px;}
+  .budget-set button{width:auto; flex-shrink:0;}
+  .budget-row{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    font-size:14px;
+    margin-bottom:8px;
+  }
+  .budget-row span:first-child{color:var(--muted);}
+  .budget-row span:last-child{
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:600;
+  }
+  .budget-row.small{font-size:12px; margin-top:8px; margin-bottom:0;}
+  .budget-row.small span{font-family:'IBM Plex Mono', monospace; font-weight:500; color:var(--muted);}
+  .budget-bar{
+    width:100%;
+    height:11px;
+    border-radius:6px;
+    background:var(--paper-line);
+    overflow:hidden;
+  }
+  .budget-bar-fill{
+    height:100%;
+    width:0%;
+    background:var(--stamp-green);
+    border-radius:6px;
+    transition:width .3s ease, background-color .3s ease;
+  }
+  .budget-bar-fill.warn{background:var(--brass);}
+  .budget-bar-fill.over{background:var(--stamp-red);}
+  .budget-empty{font-size:13px; color:var(--muted); line-height:1.5;}
+  .budget-alert-banner{
+    margin-top:10px;
+    padding:8px 12px;
+    border-radius:8px;
+    font-size:12.5px;
+    font-weight:500;
+    display:none;
+  }
+  .budget-alert-banner.warn{
+    display:block;
+    background:rgba(184,146,63,0.16);
+    border:1px solid var(--brass);
+    color:#6b5219;
+  }
+  .budget-alert-banner.over{
+    display:block;
+    background:rgba(161,61,61,0.12);
+    border:1px solid rgba(161,61,61,0.45);
+    color:var(--stamp-red);
+  }
+
+  /* ---------- Line Chart Card (Biểu đồ đường Thu & Chi) ---------- */
+  .chart-card{
+    margin-top:20px;
+    background:var(--paper);
+    border:1px solid var(--paper-line);
+    border-radius:var(--radius);
+    padding:18px;
+    box-shadow:0 10px 24px -18px rgba(27,58,47,0.4);
+  }
+  .chart-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-bottom:12px;
+  }
+  .chart-head h2{
+    font-family:'Fraunces', serif;
+    font-size:17px;
+    font-weight:600;
+    margin:0;
+  }
+  .chart-controls{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .seg-group{
+    display:inline-flex;
+    border:1px solid var(--paper-line);
+    border-radius:8px;
+    overflow:hidden;
+    background:#fff;
+  }
+  .seg-btn{
+    width:auto;
+    border-radius:0;
+    padding:5px 11px;
+    font-size:12px;
+    font-weight:500;
+    background:transparent;
+    color:var(--muted);
+  }
+  .seg-btn.active{
+    background:var(--ink);
+    color:var(--paper);
+    font-weight:600;
+  }
+  .chart-month-select{
+    width:auto;
+    padding:5px 10px;
+    font-size:12px;
+    border-radius:8px;
+    font-family:'IBM Plex Mono', monospace;
+  }
+  .chart-legend{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    flex-wrap:wrap;
+    font-size:12px;
+    color:var(--muted);
+    margin-bottom:10px;
+  }
+  .legend-item{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+  }
+  .legend-dot{
+    width:10px; height:10px; border-radius:50%;
+  }
+  .legend-line-dash{
+    width:16px; height:0; border-top:2px dashed var(--brass);
+  }
+  .chart-canvas-wrap{
+    position:relative;
+    width:100%;
+    height:240px;
+  }
+  .chart-canvas-wrap canvas{
+    width:100%;
+    height:100%;
+    display:block;
+  }
+  .chart-tooltip{
+    position:absolute;
+    pointer-events:none;
+    background:var(--ink);
+    color:var(--paper);
+    border-radius:9px;
+    padding:9px 12px;
+    font-size:12px;
+    box-shadow:0 10px 25px -8px rgba(0,0,0,0.4);
+    opacity:0;
+    transition:opacity .12s ease;
+    z-index:10;
+    min-width:155px;
+  }
+  .chart-tooltip.show{opacity:1;}
+  .chart-tooltip .tt-title{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--brass-soft);
+    margin-bottom:4px;
+    border-bottom:1px dashed rgba(251,248,239,0.2);
+    padding-bottom:3px;
+  }
+  .chart-tooltip .tt-row{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    margin-top:2px;
+  }
+
+  /* ---------- Monthly Breakdown Card (Chia theo mỗi tháng chi và thu) ---------- */
+  .monthly-card{
+    margin-top:20px;
+    background:var(--paper);
+    border:1px solid var(--paper-line);
+    border-radius:var(--radius);
+    box-shadow:0 10px 24px -18px rgba(27,58,47,0.4);
+    overflow:hidden;
+  }
+  .monthly-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+    padding:16px 18px 12px;
+    border-bottom:1px dashed var(--paper-line);
+  }
+  .monthly-head h2{
+    font-family:'Fraunces', serif;
+    font-size:17px;
+    font-weight:600;
+    margin:0;
+  }
+  .monthly-sub{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--muted);
+  }
+  .monthly-table-wrap{
+    overflow-x:auto;
+  }
+  table.monthly-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13.5px;
+  }
+  table.monthly-table th{
+    text-align:left;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    letter-spacing:.07em;
+    text-transform:uppercase;
+    color:var(--muted);
+    padding:10px 14px;
+    border-bottom:1px solid var(--paper-line);
+    background:rgba(27,58,47,0.03);
+    white-space:nowrap;
+  }
+  table.monthly-table th.num, table.monthly-table td.num{
+    text-align:right;
+  }
+  table.monthly-table td{
+    padding:11px 14px;
+    border-bottom:1px solid var(--paper-line);
+    white-space:nowrap;
+  }
+  table.monthly-table tr:last-child td{border-bottom:none;}
+  table.monthly-table tbody tr{
+    cursor:pointer;
+    transition:background .15s ease;
+  }
+  table.monthly-table tbody tr:hover{
+    background:rgba(184,146,63,0.10);
+  }
+  table.monthly-table tbody tr.selected-month{
+    background:rgba(184,146,63,0.18);
+  }
+  .month-tag{
+    display:inline-block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    padding:2px 6px;
+    border-radius:4px;
+    background:var(--brass-soft);
+    color:#5c4a1e;
+    margin-left:6px;
+    vertical-align:middle;
+  }
+  .limit-pill{
+    display:inline-block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    padding:2px 7px;
+    border-radius:5px;
+    font-weight:600;
+  }
+  .limit-pill.ok{background:rgba(47,107,79,0.12); color:var(--stamp-green);}
+  .limit-pill.warn{background:rgba(184,146,63,0.2); color:#785b1c;}
+  .limit-pill.over{background:rgba(161,61,61,0.14); color:var(--stamp-red);}
+  .val-in{font-family:'IBM Plex Mono', monospace; font-weight:600; color:var(--stamp-green);}
+  .val-out{font-family:'IBM Plex Mono', monospace; font-weight:600; color:var(--stamp-red);}
+  .val-net{font-family:'IBM Plex Mono', monospace; font-weight:600;}
+
+  /* ---------- Ledger / history ---------- */
+  .ledger{
+    margin-top:20px;
+    background:var(--paper);
+    border:1px solid var(--paper-line);
+    border-radius:var(--radius);
+    box-shadow:0 10px 24px -18px rgba(27,58,47,0.4);
+    overflow:hidden;
+  }
+  .ledger-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+    padding:16px 18px 12px;
+    border-bottom:1px dashed var(--paper-line);
+  }
+  .ledger-head h2{
+    font-family:'Fraunces', serif;
+    font-size:17px;
+    font-weight:600;
+    margin:0;
+  }
+  .ledger-tools{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .ledger-filter-select{
+    width:auto;
+    padding:5px 10px;
+    font-size:12px;
+    border-radius:8px;
+    font-family:'IBM Plex Mono', monospace;
+  }
+  .ledger-count{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--muted);
+  }
+  ul.rows{list-style:none; margin:0; padding:0;}
+  .row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:12px 18px;
+    border-bottom:1px solid var(--paper-line);
+  }
+  .row:last-child{border-bottom:none;}
+  .row .stamp{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    padding:3px 7px;
+    border-radius:5px;
+    flex-shrink:0;
+    border:1px solid currentColor;
+  }
+  .row.out .stamp{color:var(--stamp-red);}
+  .row.in .stamp{color:var(--stamp-green);}
+  .row .meta{flex:1; min-width:0;}
+  .row .item-name{font-size:14.5px; font-weight:500; color:var(--ink); }
+  .row .item-date{font-size:11.5px; color:var(--muted); font-family:'IBM Plex Mono', monospace; margin-top:1px;}
+  .row .amount{
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:600;
+    font-size:14.5px;
+    white-space:nowrap;
+  }
+  .row.out .amount{color:var(--stamp-red);}
+  .row.in .amount{color:var(--stamp-green);}
+  .row .del{
+    background:none; border:none; width:auto; padding:4px 6px;
+    color:var(--muted); font-size:16px; line-height:1; cursor:pointer;
+    border-radius:6px;
+  }
+  .row .del:hover{color:var(--stamp-red); background:rgba(161,61,61,0.08);}
+
+  .empty{
+    padding:34px 18px 40px;
+    text-align:center;
+    color:var(--muted);
+    font-size:14px;
+  }
+  .empty .glyph{font-size:26px; display:block; margin-bottom:8px; opacity:.6;}
+
+  footer{
+    text-align:center;
+    margin-top:26px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--muted);
+    letter-spacing:.05em;
+  }
+
+  .toast{
+    position:fixed;
+    left:50%; bottom:24px;
+    transform:translateX(-50%) translateY(20px);
+    background:var(--ink);
+    color:var(--paper);
+    padding:10px 18px;
+    border-radius:10px;
+    font-size:13px;
+    box-shadow:var(--shadow);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease;
+    z-index:50;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+</style>
+<!-- Firebase (giữ nguyên cấu hình đồng bộ dữ liệu hiện có) -->
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- PHẦN TRÊN CÙNG: TỔNG THU, TỔNG CHI & SỐ DƯ HIỆN TẠI -->
+  <header class="cover">
+    <div class="cover-top-row">
+      <div class="eyebrow">Sổ quỹ cá nhân</div>
+    </div>
+    <h1>Theo dõi thu chi</h1>
+
+    <div class="top-totals-grid">
+      <div class="top-total-box income-box">
+        <div class="top-total-label">▲ Tổng đã thu (tất cả)</div>
+        <div class="top-total-value">+<span id="totalIncomeValue">0</span><span class="vnd-tag">₫</span></div>
+      </div>
+      <div class="top-total-box expense-box">
+        <div class="top-total-label">▼ Tổng đã chi (tất cả)</div>
+        <div class="top-total-value">−<span id="totalExpenseValue">0</span><span class="vnd-tag">₫</span></div>
+      </div>
+    </div>
+
+    <div class="balance-block">
+      <div>
+        <div class="balance-label">Số dư hiện tại</div>
+        <div class="balance-figure"><span id="balanceValue">0</span><span class="vnd">₫</span></div>
+      </div>
+      <div class="seal" id="lastUpdate">Chưa có giao dịch nào</div>
+    </div>
+
+    <div class="sync-row">
+      <span class="sync-status off" id="syncStatus"><span class="led"></span><span id="syncStatusText">Chỉ lưu trên máy này</span></span>
+      <button class="sync-btn" id="syncToggleBtn">🔄 Đồng bộ thiết bị</button>
+    </div>
+  </header>
+
+  <div class="sync-panel" id="syncPanel">
+    <div id="syncDisconnectedView">
+      <h3>Đồng bộ nhiều thiết bị</h3>
+      <p>Nhập một <strong>mã đồng bộ</strong> (tự đặt, ví dụ <em>giadinh-nguyen-2026</em>) trên tất cả các thiết bị bạn muốn dùng chung — điện thoại, máy tính... Ai biết mã này cũng xem/sửa được dữ liệu, nên hãy đặt mã khó đoán và chỉ chia sẻ với người bạn tin tưởng.</p>
+      <div class="setup-form">
+        <input type="text" id="syncCodeInput" placeholder="Nhập mã đồng bộ...">
+        <button class="btn-setup" id="syncConnectBtn">Kết nối</button>
+      </div>
+    </div>
+    <div id="syncConnectedView" style="display:none;">
+      <h3>Đang đồng bộ</h3>
+      <div class="sync-connected-box">
+        <span class="code">Mã: <span id="syncCodeDisplay"></span></span>
+        <button id="syncDisconnectBtn">Ngắt kết nối</button>
+      </div>
+      <p>Mở cùng mã này trên thiết bị khác để thấy số liệu giống nhau, cập nhật gần như ngay lập tức.</p>
+    </div>
+  </div>
+
+  <div class="setup" id="setupBox">
+    <p>Đây là lần đầu bạn dùng sổ quỹ này — nhập số tiền đang có để bắt đầu theo dõi.</p>
+    <div class="setup-form">
+      <input type="text" class="amount-input" id="setupAmount" placeholder="Ví dụ: 2,000,000" inputmode="numeric">
+      <button class="btn-setup" id="setupBtn" style="width:auto;">Bắt đầu</button>
+    </div>
+  </div>
+
+  <!-- TÙY CHỌN ĐỊNH DẠNG DẤU PHẨY KHI NHẬP TIỀN -->
+  <div class="format-bar">
+    <div class="format-bar-info">
+      <span class="format-bar-title">Hiển thị dấu phẩy khi nhập số tiền</span>
+      <span class="format-bar-sub" id="commaExampleText">Ví dụ: 1,500,000 ₫ (dễ đọc hàng nghìn, triệu)</span>
+    </div>
+    <label class="toggle-pill" for="commaToggle">
+      <input type="checkbox" id="commaToggle" checked>
+      <span class="toggle-track"></span>
+      <span class="toggle-state-text" id="commaToggleLabel">Đang bật (1,000)</span>
+    </label>
+  </div>
+
+  <!-- NHẬP KHOẢN CHI & KHOẢN THU -->
+  <div class="panels">
+    <div class="panel expense">
+      <div class="panel-title"><span class="dot"></span> Ghi khoản chi</div>
+      <div class="field">
+        <label for="expenseName">Tên khoản chi</label>
+        <input type="text" id="expenseName" placeholder="Ví dụ: Ăn trưa, xăng xe...">
+      </div>
+      <div class="field">
+        <label for="expenseAmount">Số tiền</label>
+        <input type="text" class="amount-input" id="expenseAmount" placeholder="0" inputmode="numeric">
+        <div class="quick-chips" data-target="expenseAmount">
+          <button type="button" class="chip-btn" data-val="50000">+50,000</button>
+          <button type="button" class="chip-btn" data-val="100000">+100,000</button>
+          <button type="button" class="chip-btn" data-val="200000">+200,000</button>
+          <button type="button" class="chip-btn" data-val="500000">+500,000</button>
+        </div>
+      </div>
+      <button class="btn-expense" id="expenseBtn">− Trừ khoản chi</button>
+    </div>
+
+    <div class="panel income">
+      <div class="panel-title"><span class="dot"></span> Thêm tiền vào</div>
+      <div class="field">
+        <label for="incomeName">Nguồn tiền (không bắt buộc)</label>
+        <input type="text" id="incomeName" placeholder="Ví dụ: Lương, được cho...">
+      </div>
+      <div class="field">
+        <label for="incomeAmount">Số tiền</label>
+        <input type="text" class="amount-input" id="incomeAmount" placeholder="0" inputmode="numeric">
+        <div class="quick-chips" data-target="incomeAmount">
+          <button type="button" class="chip-btn" data-val="100000">+100,000</button>
+          <button type="button" class="chip-btn" data-val="500000">+500,000</button>
+          <button type="button" class="chip-btn" data-val="1000000">+1,000,000</button>
+          <button type="button" class="chip-btn" data-val="5000000">+5,000,000</button>
+        </div>
+      </div>
+      <button class="btn-income" id="incomeBtn">+ Cộng tiền vào</button>
+    </div>
+  </div>
+
+  <!-- GIỚI HẠN CHI TIÊU HÀNG THÁNG -->
+  <div class="budget-card">
+    <div class="budget-head">
+      <h3>Giới hạn chi tiêu hàng tháng</h3>
+      <div class="budget-actions">
+        <button class="budget-clear-btn" id="budgetClearBtn" style="display:none;">Xóa giới hạn</button>
+        <button class="budget-edit-btn" id="budgetEditBtn">Đặt / Sửa</button>
+      </div>
+    </div>
+    <div class="budget-set" id="budgetSetForm" style="display:none;">
+      <input type="text" class="amount-input" id="budgetLimitInput" placeholder="Ví dụ: 5,000,000" inputmode="numeric">
+      <button class="btn-setup" id="budgetSaveBtn">Lưu giới hạn</button>
+    </div>
+    <div id="budgetDisplayNoLimit" class="budget-empty">Bạn chưa đặt giới hạn chi tiêu hàng tháng. Bấm "Đặt / Sửa" để nhập mức trần chi tiêu mỗi tháng.</div>
+    <div id="budgetDisplay" style="display:none;">
+      <div class="budget-row">
+        <span id="budgetMonthLabel">Đã chi tháng này</span>
+        <span id="budgetSpentValue">0 ₫</span>
+      </div>
+      <div class="budget-bar"><div class="budget-bar-fill" id="budgetBarFill"></div></div>
+      <div class="budget-row small">
+        <span id="budgetLimitText">Giới hạn: 0 ₫</span>
+        <span id="budgetRemainingText">Còn lại: 0 ₫</span>
+      </div>
+      <div class="budget-alert-banner" id="budgetAlertBanner"></div>
+    </div>
+  </div>
+
+  <!-- BIỂU ĐỒ ĐƯỜNG THEO DÕI THU VÀ CHI -->
+  <div class="chart-card">
+    <div class="chart-head">
+      <h2>Biểu đồ đường Thu & Chi</h2>
+      <div class="chart-controls">
+        <div class="seg-group">
+          <button type="button" class="seg-btn active" id="chartModeMonthBtn">Theo tháng</button>
+          <button type="button" class="seg-btn" id="chartModeDayBtn">Theo ngày</button>
+        </div>
+        <select class="chart-month-select" id="chartDayMonthSelect" style="display:none;"></select>
+      </div>
+    </div>
+    <div class="chart-legend">
+      <span class="legend-item"><span class="legend-dot" style="background:var(--stamp-green);"></span> Tổng Thu</span>
+      <span class="legend-item"><span class="legend-dot" style="background:var(--stamp-red);"></span> Tổng Chi</span>
+      <span class="legend-item" id="legendLimitItem" style="display:none;"><span class="legend-line-dash"></span> Giới hạn chi/tháng</span>
+    </div>
+    <div class="chart-canvas-wrap" id="chartWrap">
+      <canvas id="trendCanvas"></canvas>
+      <div class="chart-tooltip" id="chartTooltip"></div>
+    </div>
+  </div>
+
+  <!-- CHIA THEO MỖI THÁNG CHI VÀ THU -->
+  <div class="monthly-card">
+    <div class="monthly-head">
+      <h2>Tổng hợp Thu & Chi theo từng tháng</h2>
+      <span class="monthly-sub">Bấm vào một tháng để lọc lịch sử bên dưới</span>
+    </div>
+    <div class="monthly-table-wrap">
+      <table class="monthly-table">
+        <thead>
+          <tr>
+            <th>Tháng</th>
+            <th class="num">Tổng Thu</th>
+            <th class="num">Tổng Chi</th>
+            <th class="num">Chênh lệch</th>
+            <th class="num" id="monthlyLimitColHead">Mức giới hạn</th>
+          </tr>
+        </thead>
+        <tbody id="monthlyTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- LỊCH SỬ GIAO DỊCH -->
+  <div class="ledger">
+    <div class="ledger-head">
+      <h2>Lịch sử giao dịch</h2>
+      <div class="ledger-tools">
+        <select class="ledger-filter-select" id="ledgerMonthFilter">
+          <option value="all">Tất cả các tháng</option>
+        </select>
+        <span class="ledger-count" id="txCount">0 mục</span>
+      </div>
+    </div>
+    <ul class="rows" id="rows"></ul>
+    <div class="empty" id="emptyState">
+      <span class="glyph">✦</span>
+      Chưa có giao dịch nào được ghi lại.
+    </div>
+  </div>
+
+  <footer>Dữ liệu lưu trên trình duyệt của bạn. Bật "Đồng bộ thiết bị" ở trên để dùng chung số liệu trên nhiều máy.</footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  const STORAGE_KEY = 'so-quy-data-v1';
+  const SYNC_CODE_KEY = 'so-quy-sync-code-v1';
+  const COMMA_PREF_KEY = 'so-quy-comma-format-v1';
+
+  // ============================================================
+  // GIỮ NGUYÊN CẤU HÌNH FIREBASE HIỆN CÓ
+  // ============================================================
+  const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyAma5_BgRJk8pXpDhw6mKum_W2KMyjtIcU",
+    authDomain: "soquy-330a0.firebaseapp.com",
+    projectId: "soquy-330a0",
+    storageBucket: "soquy-330a0.firebasestorage.app",
+    messagingSenderId: "1074989524520",
+    appId: "1:1074989524520:web:c7f58c2c9b910a319c371d"
+  };
+  const SYNC_ENABLED = !!(FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.projectId);
+  const SYNC_COLLECTION = 'soQuySync';
+
+  let db = null;
+  let unsubscribe = null;
+  let syncCode = null;
+  let applyingRemote = false;
+  let writeTimer = null;
+
+  // Trạng thái hiển thị UI (không làm thay đổi cấu trúc dữ liệu gốc)
+  let useCommaFormat = localStorage.getItem(COMMA_PREF_KEY) !== 'false';
+  let chartMode = 'month'; // 'month' | 'day'
+  let selectedChartMonthKey = getMonthKey(Date.now());
+  let selectedLedgerMonth = 'all';
+  let chartPointsCache = [];
+
+  if(SYNC_ENABLED){
+    try{
+      firebase.initializeApp(FIREBASE_CONFIG);
+      db = firebase.firestore();
+      db.enablePersistence({ synchronizeTabs: true }).catch(()=>{});
+    }catch(e){
+      console.error('Không khởi tạo được Firebase:', e);
+      db = null;
+    }
+  }
+
+  function load(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return { initialized:false, balance:0, transactions:[], monthlyLimit:null };
+      const data = JSON.parse(raw);
+      if(typeof data.balance !== 'number' || !Array.isArray(data.transactions)) throw 0;
+      if(typeof data.monthlyLimit !== 'number') data.monthlyLimit = null;
+      return data;
+    }catch(e){
+      return { initialized:false, balance:0, transactions:[], monthlyLimit:null };
+    }
+  }
+
+  let state = load();
+
+  function save(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function persist(){
+    save();
+    if(db && syncCode && !applyingRemote){
+      clearTimeout(writeTimer);
+      writeTimer = setTimeout(()=>{
+        db.collection(SYNC_COLLECTION).doc(syncCode).set({
+          balance: state.balance,
+          transactions: state.transactions,
+          initialized: state.initialized,
+          monthlyLimit: state.monthlyLimit,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).catch(err => {
+          console.error('Lỗi đồng bộ:', err);
+          showToast('Không đồng bộ được — kiểm tra kết nối mạng');
+        });
+      }, 250);
+    }
+  }
+
+  // Định dạng số có dấu phẩy (1,000,000)
+  function formatWithCommas(num){
+    const rounded = Math.abs(Math.round(num));
+    return rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  function formatVND(n){
+    const sign = n < 0 ? '−' : '';
+    return sign + formatWithCommas(n);
+  }
+
+  function formatCompactVND(n){
+    const abs = Math.abs(n);
+    if(abs >= 1000000000) return (n / 1000000000).toFixed(1).replace(/\.0$/, '') + ' tỷ';
+    if(abs >= 1000000) return (n / 1000000).toFixed(1).replace(/\.0$/, '') + ' tr';
+    if(abs >= 1000) return Math.round(n / 1000) + 'k';
+    return Math.round(n).toString();
+  }
+
+  // Xử lý ô nhập tiền có dấu phẩy
+  function parseRawDigits(str){
+    const digits = String(str || '').replace(/\D/g, '');
+    return digits ? parseInt(digits, 10) : NaN;
+  }
+
+  function formatInputString(rawStr){
+    const digits = String(rawStr || '').replace(/\D/g, '');
+    if(!digits) return '';
+    const cleanDigits = digits.replace(/^0+(?=\d)/, '');
+    if(!useCommaFormat) return cleanDigits;
+    return cleanDigits.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  function attachCommaInputBehavior(inputEl){
+    inputEl.addEventListener('input', () => {
+      const oldVal = inputEl.value;
+      const selStart = inputEl.selectionStart || oldVal.length;
+      const digitsBeforeCursor = oldVal.slice(0, selStart).replace(/\D/g, '').length;
+
+      const formatted = formatInputString(oldVal);
+      inputEl.value = formatted;
+
+      // Đặt lại vị trí con trỏ hợp lý sau khi chèn dấu phẩy
+      if(digitsBeforeCursor === 0){
+        inputEl.setSelectionRange(0, 0);
+      } else {
+        let count = 0;
+        let newPos = formatted.length;
+        for(let i = 0; i < formatted.length; i++){
+          if(/\d/.test(formatted[i])) count++;
+          if(count === digitsBeforeCursor){
+            newPos = i + 1;
+            break;
+          }
+        }
+        inputEl.setSelectionRange(newPos, newPos);
+      }
+    });
+  }
+
+  function refreshAllAmountInputs(){
+    document.querySelectorAll('.amount-input').forEach(inp => {
+      if(inp.value){
+        inp.value = formatInputString(inp.value);
+      }
+    });
+    document.querySelectorAll('.chip-btn').forEach(btn => {
+      const val = parseInt(btn.dataset.val, 10);
+      btn.textContent = '+' + (useCommaFormat ? formatWithCommas(val) : val.toString());
+    });
+    el.setupAmount.placeholder = useCommaFormat ? 'Ví dụ: 2,000,000' : 'Ví dụ: 2000000';
+    el.budgetLimitInput.placeholder = useCommaFormat ? 'Ví dụ: 5,000,000' : 'Ví dụ: 5000000';
+    el.commaToggleLabel.textContent = useCommaFormat ? 'Đang bật (1,000)' : 'Đang tắt (1000)';
+    el.commaExampleText.textContent = useCommaFormat
+      ? 'Ví dụ: 1,500,000 ₫ (dễ đọc hàng nghìn, triệu)'
+      : 'Ví dụ: 1500000 ₫ (nhập số liền không dấu phẩy)';
+  }
+
+  function getMonthKey(ts){
+    const d = new Date(ts);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    return `${y}-${m}`;
+  }
+
+  function formatMonthLabel(monthKey){
+    const [y, m] = monthKey.split('-');
+    return `Tháng ${m}/${y}`;
+  }
+
+  function formatDate(ts){
+    const d = new Date(ts);
+    return d.toLocaleDateString('vi-VN', {day:'2-digit', month:'2-digit', year:'numeric'}) +
+           ' · ' + d.toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'});
+  }
+
+  const el = {
+    balanceValue: document.getElementById('balanceValue'),
+    lastUpdate: document.getElementById('lastUpdate'),
+    setupBox: document.getElementById('setupBox'),
+    setupAmount: document.getElementById('setupAmount'),
+    setupBtn: document.getElementById('setupBtn'),
+    commaToggle: document.getElementById('commaToggle'),
+    commaToggleLabel: document.getElementById('commaToggleLabel'),
+    commaExampleText: document.getElementById('commaExampleText'),
+    expenseName: document.getElementById('expenseName'),
+    expenseAmount: document.getElementById('expenseAmount'),
+    expenseBtn: document.getElementById('expenseBtn'),
+    incomeName: document.getElementById('incomeName'),
+    incomeAmount: document.getElementById('incomeAmount'),
+    incomeBtn: document.getElementById('incomeBtn'),
+    rows: document.getElementById('rows'),
+    emptyState: document.getElementById('emptyState'),
+    txCount: document.getElementById('txCount'),
+    toast: document.getElementById('toast'),
+    syncStatus: document.getElementById('syncStatus'),
+    syncStatusText: document.getElementById('syncStatusText'),
+    syncToggleBtn: document.getElementById('syncToggleBtn'),
+    syncPanel: document.getElementById('syncPanel'),
+    syncDisconnectedView: document.getElementById('syncDisconnectedView'),
+    syncConnectedView: document.getElementById('syncConnectedView'),
+    syncCodeInput: document.getElementById('syncCodeInput'),
+    syncConnectBtn: document.getElementById('syncConnectBtn'),
+    syncCodeDisplay: document.getElementById('syncCodeDisplay'),
+    syncDisconnectBtn: document.getElementById('syncDisconnectBtn'),
+    totalExpenseValue: document.getElementById('totalExpenseValue'),
+    totalIncomeValue: document.getElementById('totalIncomeValue'),
+    budgetEditBtn: document.getElementById('budgetEditBtn'),
+    budgetClearBtn: document.getElementById('budgetClearBtn'),
+    budgetSetForm: document.getElementById('budgetSetForm'),
+    budgetLimitInput: document.getElementById('budgetLimitInput'),
+    budgetSaveBtn: document.getElementById('budgetSaveBtn'),
+    budgetDisplayNoLimit: document.getElementById('budgetDisplayNoLimit'),
+    budgetDisplay: document.getElementById('budgetDisplay'),
+    budgetMonthLabel: document.getElementById('budgetMonthLabel'),
+    budgetSpentValue: document.getElementById('budgetSpentValue'),
+    budgetBarFill: document.getElementById('budgetBarFill'),
+    budgetLimitText: document.getElementById('budgetLimitText'),
+    budgetRemainingText: document.getElementById('budgetRemainingText'),
+    budgetAlertBanner: document.getElementById('budgetAlertBanner'),
+    monthlyTableBody: document.getElementById('monthlyTableBody'),
+    ledgerMonthFilter: document.getElementById('ledgerMonthFilter'),
+    chartModeMonthBtn: document.getElementById('chartModeMonthBtn'),
+    chartModeDayBtn: document.getElementById('chartModeDayBtn'),
+    chartDayMonthSelect: document.getElementById('chartDayMonthSelect'),
+    legendLimitItem: document.getElementById('legendLimitItem'),
+    chartWrap: document.getElementById('chartWrap'),
+    trendCanvas: document.getElementById('trendCanvas'),
+    chartTooltip: document.getElementById('chartTooltip'),
+  };
+
+  let toastTimer;
+  function showToast(msg){
+    el.toast.textContent = msg;
+    el.toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=> el.toast.classList.remove('show'), 2200);
+  }
+
+  // Tổng hợp dữ liệu theo từng tháng & toàn bộ
+  function computeAnalytics(){
+    const currentMonthKey = getMonthKey(Date.now());
+    let totalExpense = 0;
+    let totalIncome = 0;
+    const monthMap = new Map();
+
+    // Luôn đảm bảo tháng hiện tại có trong danh sách
+    monthMap.set(currentMonthKey, { key: currentMonthKey, income: 0, expense: 0, count: 0 });
+
+    state.transactions.forEach(tx => {
+      const mKey = getMonthKey(tx.ts);
+      if(!monthMap.has(mKey)){
+        monthMap.set(mKey, { key: mKey, income: 0, expense: 0, count: 0 });
+      }
+      const bucket = monthMap.get(mKey);
+      bucket.count += 1;
+      if(tx.type === 'expense'){
+        totalExpense += tx.amount;
+        bucket.expense += tx.amount;
+      } else {
+        totalIncome += tx.amount;
+        bucket.income += tx.amount;
+      }
+    });
+
+    // Sắp xếp tăng dần theo thời gian cho biểu đồ, giảm dần cho bảng
+    const monthsAsc = Array.from(monthMap.values()).sort((a,b) => a.key.localeCompare(b.key));
+    const monthsDesc = monthsAsc.slice().reverse();
+    const currentMonthData = monthMap.get(currentMonthKey) || { key: currentMonthKey, income: 0, expense: 0, count: 0 };
+
+    return {
+      totalExpense,
+      totalIncome,
+      currentMonthKey,
+      currentMonthExpense: currentMonthData.expense,
+      monthsAsc,
+      monthsDesc
+    };
+  }
+
+  function renderBudget(monthExpense, currentMonthKey){
+    const limit = state.monthlyLimit;
+    el.budgetMonthLabel.textContent = `Đã chi ${formatMonthLabel(currentMonthKey)}`;
+    if(limit === null || limit === undefined || isNaN(limit) || limit <= 0){
+      el.budgetDisplayNoLimit.style.display = 'block';
+      el.budgetDisplay.style.display = 'none';
+      el.budgetClearBtn.style.display = 'none';
+      return;
+    }
+    el.budgetDisplayNoLimit.style.display = 'none';
+    el.budgetDisplay.style.display = 'block';
+    el.budgetClearBtn.style.display = 'inline-block';
+
+    el.budgetSpentValue.textContent = formatVND(monthExpense) + ' ₫';
+    const rawPct = (monthExpense / limit) * 100;
+    const pct = Math.min(100, rawPct);
+    el.budgetBarFill.style.width = pct + '%';
+    el.budgetBarFill.classList.remove('warn', 'over');
+    el.budgetAlertBanner.className = 'budget-alert-banner';
+
+    if(monthExpense > limit){
+      el.budgetBarFill.classList.add('over');
+      el.budgetAlertBanner.classList.add('over');
+      el.budgetAlertBanner.textContent = `⚠ Bạn đã chi vượt giới hạn tháng này ${formatVND(monthExpense - limit)} ₫ (${Math.round(rawPct)}%).`;
+    } else if(rawPct >= 80){
+      el.budgetBarFill.classList.add('warn');
+      el.budgetAlertBanner.classList.add('warn');
+      el.budgetAlertBanner.textContent = `Lưu ý: Bạn đã dùng ${Math.round(rawPct)}% giới hạn chi tiêu tháng này.`;
+    }
+
+    el.budgetLimitText.textContent = 'Giới hạn: ' + formatVND(limit) + ' ₫';
+    const remaining = limit - monthExpense;
+    el.budgetRemainingText.textContent = remaining >= 0
+      ? 'Còn lại: ' + formatVND(remaining) + ' ₫'
+      : 'Vượt: ' + formatVND(Math.abs(remaining)) + ' ₫';
+  }
+
+  function renderMonthlyTable(monthsDesc, currentMonthKey){
+    const limit = (state.monthlyLimit && state.monthlyLimit > 0) ? state.monthlyLimit : null;
+    el.monthlyTableBody.innerHTML = '';
+
+    monthsDesc.forEach(m => {
+      const net = m.income - m.expense;
+      const tr = document.createElement('tr');
+      if(selectedLedgerMonth === m.key) tr.classList.add('selected-month');
+      tr.dataset.month = m.key;
+
+      let limitHtml = '<span style="color:var(--muted);font-size:12px;">—</span>';
+      if(limit){
+        const ratio = (m.expense / limit) * 100;
+        if(m.expense > limit){
+          limitHtml = `<span class="limit-pill over">Vượt ${Math.round(ratio)}%</span>`;
+        } else if(ratio >= 80){
+          limitHtml = `<span class="limit-pill warn">${Math.round(ratio)}%</span>`;
+        } else {
+          limitHtml = `<span class="limit-pill ok">${Math.round(ratio)}%</span>`;
+        }
+      }
+
+      tr.innerHTML = `
+        <td>
+          <strong>${formatMonthLabel(m.key)}</strong>
+          ${m.key === currentMonthKey ? '<span class="month-tag">Hiện tại</span>' : ''}
+        </td>
+        <td class="num val-in">+${formatVND(m.income)} ₫</td>
+        <td class="num val-out">−${formatVND(m.expense)} ₫</td>
+        <td class="num val-net" style="color:${net >= 0 ? 'var(--stamp-green)' : 'var(--stamp-red)'};">
+          ${net >= 0 ? '+' : '−'}${formatVND(Math.abs(net))} ₫
+        </td>
+        <td class="num">${limitHtml}</td>
+      `;
+      el.monthlyTableBody.appendChild(tr);
+    });
+  }
+
+  function syncMonthSelectors(monthsDesc, currentMonthKey){
+    // Cập nhật dropdown lọc lịch sử
+    const prevLedgerVal = selectedLedgerMonth;
+    el.ledgerMonthFilter.innerHTML = '<option value="all">Tất cả các tháng</option>';
+    monthsDesc.forEach(m => {
+      const opt = document.createElement('option');
+      opt.value = m.key;
+      opt.textContent = formatMonthLabel(m.key) + (m.key === currentMonthKey ? ' (Hiện tại)' : '');
+      el.ledgerMonthFilter.appendChild(opt);
+    });
+    if(prevLedgerVal !== 'all' && monthsDesc.some(m => m.key === prevLedgerVal)){
+      el.ledgerMonthFilter.value = prevLedgerVal;
+    } else {
+      selectedLedgerMonth = 'all';
+      el.ledgerMonthFilter.value = 'all';
+    }
+
+    // Cập nhật dropdown chọn tháng cho biểu đồ theo ngày
+    el.chartDayMonthSelect.innerHTML = '';
+    monthsDesc.forEach(m => {
+      const opt = document.createElement('option');
+      opt.value = m.key;
+      opt.textContent = formatMonthLabel(m.key);
+      el.chartDayMonthSelect.appendChild(opt);
+    });
+    if(monthsDesc.some(m => m.key === selectedChartMonthKey)){
+      el.chartDayMonthSelect.value = selectedChartMonthKey;
+    } else {
+      selectedChartMonthKey = currentMonthKey;
+      el.chartDayMonthSelect.value = currentMonthKey;
+    }
+  }
+
+  // Vẽ biểu đồ đường Thu & Chi bằng Canvas sắc nét
+  function buildChartSeries(monthsAsc){
+    if(chartMode === 'month'){
+      return monthsAsc.map(m => ({
+        label: m.key.split('-')[1] + '/' + m.key.split('-')[0].slice(2),
+        fullLabel: formatMonthLabel(m.key),
+        income: m.income,
+        expense: m.expense
+      }));
+    } else {
+      // Theo từng ngày trong selectedChartMonthKey
+      const [yStr, mStr] = selectedChartMonthKey.split('-');
+      const year = parseInt(yStr, 10);
+      const monthIdx = parseInt(mStr, 10) - 1;
+      const daysInMonth = new Date(year, monthIdx + 1, 0).getDate();
+      const now = new Date();
+      const maxDay = (now.getFullYear() === year && now.getMonth() === monthIdx)
+        ? Math.max(now.getDate(), 1)
+        : daysInMonth;
+
+      const dayBuckets = [];
+      for(let d = 1; d <= maxDay; d++){
+        dayBuckets.push({
+          day: d,
+          label: `${String(d).padStart(2,'0')}/${mStr}`,
+          fullLabel: `Ngày ${String(d).padStart(2,'0')}/${mStr}/${yStr}`,
+          income: 0,
+          expense: 0
+        });
+      }
+
+      state.transactions.forEach(tx => {
+        if(getMonthKey(tx.ts) === selectedChartMonthKey){
+          const d = new Date(tx.ts).getDate();
+          if(d >= 1 && d <= dayBuckets.length){
+            if(tx.type === 'income') dayBuckets[d - 1].income += tx.amount;
+            else dayBuckets[d - 1].expense += tx.amount;
+          }
+        }
+      });
+      return dayBuckets;
+    }
+  }
+
+  function drawLineChart(monthsAsc){
+    const canvas = el.trendCanvas;
+    const wrap = el.chartWrap;
+    const rect = wrap.getBoundingClientRect();
+    const width = Math.max(280, Math.floor(rect.width));
+    const height = 240;
+    const dpr = window.devicePixelRatio || 1;
+
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    canvas.style.width = width + 'px';
+    canvas.style.height = height + 'px';
+
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, width, height);
+
+    const series = buildChartSeries(monthsAsc);
+    const showLimitLine = (chartMode === 'month' && state.monthlyLimit && state.monthlyLimit > 0);
+    el.legendLimitItem.style.display = showLimitLine ? 'inline-flex' : 'none';
+
+    const padLeft = 56;
+    const padRight = 18;
+    const padTop = 18;
+    const padBottom = 32;
+    const plotW = width - padLeft - padRight;
+    const plotH = height - padTop - padBottom;
+
+    let maxVal = 0;
+    series.forEach(pt => {
+      if(pt.income > maxVal) maxVal = pt.income;
+      if(pt.expense > maxVal) maxVal = pt.expense;
+    });
+    if(showLimitLine && state.monthlyLimit > maxVal){
+      maxVal = state.monthlyLimit;
+    }
+    if(maxVal <= 0) maxVal = 1000000;
+    else maxVal = maxVal * 1.15;
+
+    // Lưới ngang & nhãn trục Y
+    const gridSteps = 4;
+    ctx.font = '500 10.5px "IBM Plex Mono", monospace';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+
+    for(let i = 0; i <= gridSteps; i++){
+      const ratio = i / gridSteps;
+      const y = padTop + plotH - ratio * plotH;
+      const val = ratio * maxVal;
+
+      ctx.strokeStyle = i === 0 ? '#cfc8b2' : 'rgba(227,221,200,0.75)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(padLeft, y);
+      ctx.lineTo(width - padRight, y);
+      ctx.stroke();
+
+      ctx.fillStyle = '#8a8368';
+      ctx.fillText(formatCompactVND(val), padLeft - 8, y);
+    }
+
+    // Đường nét đứt giới hạn chi tiêu tháng (khi ở chế độ Theo tháng)
+    if(showLimitLine){
+      const limitY = padTop + plotH - (state.monthlyLimit / maxVal) * plotH;
+      ctx.save();
+      ctx.setLineDash([5, 4]);
+      ctx.strokeStyle = '#b8923f';
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.moveTo(padLeft, limitY);
+      ctx.lineTo(width - padRight, limitY);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // Tính tọa độ X, Y cho từng điểm
+    const n = series.length;
+    chartPointsCache = series.map((pt, idx) => {
+      const x = n === 1
+        ? padLeft + plotW / 2
+        : padLeft + (idx / (n - 1)) * plotW;
+      const yIncome = padTop + plotH - (pt.income / maxVal) * plotH;
+      const yExpense = padTop + plotH - (pt.expense / maxVal) * plotH;
+      return { ...pt, x, yIncome, yExpense };
+    });
+
+    // Nhãn trục X (giãn cách tự động để không chồng chữ)
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillStyle = '#8a8368';
+    const maxLabels = Math.max(2, Math.floor(plotW / 54));
+    const step = Math.ceil(n / maxLabels);
+    chartPointsCache.forEach((pt, idx) => {
+      if(idx % step === 0 || idx === n - 1){
+        ctx.fillText(pt.label, pt.x, padTop + plotH + 9);
+      }
+    });
+
+    // Hàm vẽ đường + vùng tô mờ + chấm tròn
+    function renderSeriesLine(keyY, strokeColor, fillTopColor){
+      if(chartPointsCache.length === 0) return;
+
+      // Vùng gradient dưới đường
+      if(chartPointsCache.length > 1){
+        const grad = ctx.createLinearGradient(0, padTop, 0, padTop + plotH);
+        grad.addColorStop(0, fillTopColor);
+        grad.addColorStop(1, 'rgba(251,248,239,0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.moveTo(chartPointsCache[0].x, padTop + plotH);
+        chartPointsCache.forEach(pt => ctx.lineTo(pt.x, pt[keyY]));
+        ctx.lineTo(chartPointsCache[chartPointsCache.length - 1].x, padTop + plotH);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      // Đường nối
+      ctx.strokeStyle = strokeColor;
+      ctx.lineWidth = 2.4;
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      chartPointsCache.forEach((pt, i) => {
+        if(i === 0) ctx.moveTo(pt.x, pt[keyY]);
+        else ctx.lineTo(pt.x, pt[keyY]);
+      });
+      ctx.stroke();
+
+      // Điểm tròn
+      const dotRadius = n > 20 ? 2.6 : 4;
+      chartPointsCache.forEach(pt => {
+        ctx.fillStyle = '#fbf8ef';
+        ctx.beginPath();
+        ctx.arc(pt.x, pt[keyY], dotRadius + 1.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = strokeColor;
+        ctx.beginPath();
+        ctx.arc(pt.x, pt[keyY], dotRadius, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    renderSeriesLine('yIncome', '#2f6b4f', 'rgba(47,107,79,0.16)');
+    renderSeriesLine('yExpense', '#a13d3d', 'rgba(161,61,61,0.14)');
+  }
+
+  function handleChartPointer(clientX){
+    if(!chartPointsCache.length) return;
+    const rect = el.trendCanvas.getBoundingClientRect();
+    const relX = clientX - rect.left;
+
+    let closest = chartPointsCache[0];
+    let minDist = Math.abs(relX - closest.x);
+    for(let i = 1; i < chartPointsCache.length; i++){
+      const d = Math.abs(relX - chartPointsCache[i].x);
+      if(d < minDist){
+        minDist = d;
+        closest = chartPointsCache[i];
+      }
+    }
+
+    const net = closest.income - closest.expense;
+    el.chartTooltip.innerHTML = `
+      <div class="tt-title">${closest.fullLabel}</div>
+      <div class="tt-row"><span style="color:#9be7c0;">Thu:</span><span>+${formatVND(closest.income)} ₫</span></div>
+      <div class="tt-row"><span style="color:#f6aaaa;">Chi:</span><span>−${formatVND(closest.expense)} ₫</span></div>
+      <div class="tt-row" style="border-top:1px solid rgba(255,255,255,0.12);padding-top:3px;margin-top:3px;">
+        <span>Còn:</span><span>${net >= 0 ? '+' : '−'}${formatVND(Math.abs(net))} ₫</span>
+      </div>
+    `;
+    el.chartTooltip.classList.add('show');
+
+    const ttWidth = el.chartTooltip.offsetWidth || 165;
+    let leftPos = closest.x + 12;
+    if(leftPos + ttWidth > rect.width - 6){
+      leftPos = Math.max(6, closest.x - ttWidth - 12);
+    }
+    el.chartTooltip.style.left = leftPos + 'px';
+    el.chartTooltip.style.top = '12px';
+  }
+
+  function render(){
+    el.balanceValue.textContent = formatVND(state.balance);
+    el.setupBox.classList.toggle('show', !state.initialized);
+
+    const analytics = computeAnalytics();
+    el.totalExpenseValue.textContent = formatVND(analytics.totalExpense);
+    el.totalIncomeValue.textContent = formatVND(analytics.totalIncome);
+
+    renderBudget(analytics.currentMonthExpense, analytics.currentMonthKey);
+    syncMonthSelectors(analytics.monthsDesc, analytics.currentMonthKey);
+    renderMonthlyTable(analytics.monthsDesc, analytics.currentMonthKey);
+    drawLineChart(analytics.monthsAsc);
+
+    // Lọc danh sách giao dịch theo tháng nếu người dùng chọn
+    let txs = state.transactions.slice().sort((a,b)=> b.ts - a.ts);
+    if(selectedLedgerMonth !== 'all'){
+      txs = txs.filter(tx => getMonthKey(tx.ts) === selectedLedgerMonth);
+    }
+
+    el.txCount.textContent = txs.length + ' mục';
+    el.rows.innerHTML = '';
+
+    if(txs.length === 0){
+      el.emptyState.style.display = 'block';
+      el.emptyState.innerHTML = selectedLedgerMonth === 'all'
+        ? '<span class="glyph">✦</span>Chưa có giao dịch nào được ghi lại.'
+        : `<span class="glyph">✦</span>Không có giao dịch nào trong ${formatMonthLabel(selectedLedgerMonth)}.`;
+    } else {
+      el.emptyState.style.display = 'none';
+      txs.forEach(tx => {
+        const li = document.createElement('li');
+        li.className = 'row ' + (tx.type === 'expense' ? 'out' : 'in');
+        li.innerHTML = `
+          <span class="stamp">${tx.type === 'expense' ? 'Chi' : 'Thu'}</span>
+          <span class="meta">
+            <div class="item-name">${escapeHtml(tx.name)}</div>
+            <div class="item-date">${formatDate(tx.ts)}</div>
+          </span>
+          <span class="amount">${tx.type === 'expense' ? '−' : '+'}${formatVND(tx.amount)} ₫</span>
+          <button class="del" title="Xóa giao dịch" data-id="${tx.id}">✕</button>
+        `;
+        el.rows.appendChild(li);
+      });
+    }
+
+    if(state.transactions.length){
+      const latest = state.transactions.slice().sort((a,b)=> b.ts - a.ts)[0];
+      el.lastUpdate.textContent = 'Cập nhật gần nhất: ' + formatDate(latest.ts);
+    } else {
+      el.lastUpdate.textContent = 'Chưa có giao dịch nào';
+    }
+  }
+
+  function escapeHtml(str){
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  function setup(){
+    const val = parseRawDigits(el.setupAmount.value);
+    if(isNaN(val) || val < 0){
+      showToast('Vui lòng nhập số tiền hợp lệ');
+      return;
+    }
+    state.balance = val;
+    state.initialized = true;
+    persist();
+    render();
+    el.setupAmount.value = '';
+    showToast('Đã thiết lập số dư ban đầu');
+  }
+
+  function addTransaction(type, nameInput, amountInput, defaultName){
+    const amount = parseRawDigits(amountInput.value);
+    if(isNaN(amount) || amount <= 0){
+      showToast('Vui lòng nhập số tiền hợp lệ');
+      return;
+    }
+    const name = nameInput.value.trim() || defaultName;
+
+    if(type === 'expense' && amount > state.balance){
+      const proceed = confirm('Số tiền chi vượt quá số dư hiện có (' + formatVND(state.balance) + ' ₫). Vẫn ghi nhận khoản chi này?');
+      if(!proceed) return;
+    }
+
+    // Cảnh báo nếu khoản chi vượt giới hạn tháng
+    if(type === 'expense' && state.monthlyLimit && state.monthlyLimit > 0){
+      const analytics = computeAnalytics();
+      const projected = analytics.currentMonthExpense + amount;
+      if(projected > state.monthlyLimit && analytics.currentMonthExpense <= state.monthlyLimit){
+        const okOver = confirm(`Khoản chi này sẽ làm tổng chi tháng này (${formatVND(projected)} ₫) vượt giới hạn (${formatVND(state.monthlyLimit)} ₫). Bạn vẫn muốn ghi?`);
+        if(!okOver) return;
+      }
+    }
+
+    const tx = {
+      id: Date.now() + '-' + Math.random().toString(36).slice(2,7),
+      type,
+      name,
+      amount,
+      ts: Date.now()
+    };
+    state.transactions.push(tx);
+    state.balance = type === 'expense' ? state.balance - amount : state.balance + amount;
+    if(!state.initialized) state.initialized = true;
+    persist();
+    render();
+
+    nameInput.value = '';
+    amountInput.value = '';
+    showToast(type === 'expense' ? 'Đã trừ khoản chi' : 'Đã cộng tiền vào');
+  }
+
+  function setBudgetLimit(){
+    const val = parseRawDigits(el.budgetLimitInput.value);
+    if(isNaN(val) || val <= 0){
+      showToast('Vui lòng nhập mức giới hạn lớn hơn 0');
+      return;
+    }
+    state.monthlyLimit = val;
+    persist();
+    render();
+    el.budgetLimitInput.value = '';
+    el.budgetSetForm.style.display = 'none';
+    showToast('Đã lưu giới hạn chi tiêu hàng tháng');
+  }
+
+  function clearBudgetLimit(){
+    state.monthlyLimit = null;
+    persist();
+    render();
+    el.budgetSetForm.style.display = 'none';
+    showToast('Đã xóa giới hạn chi tiêu');
+  }
+
+  function deleteTransaction(id){
+    const idx = state.transactions.findIndex(t => t.id === id);
+    if(idx === -1) return;
+    const tx = state.transactions[idx];
+    state.balance = tx.type === 'expense' ? state.balance + tx.amount : state.balance - tx.amount;
+    state.transactions.splice(idx, 1);
+    persist();
+    render();
+    showToast('Đã xóa giao dịch');
+  }
+
+  function updateSyncUI(){
+    if(!SYNC_ENABLED){
+      el.syncStatus.className = 'sync-status off';
+      el.syncStatusText.textContent = 'Đồng bộ chưa được cấu hình';
+      el.syncToggleBtn.style.display = 'none';
+      return;
+    }
+    if(syncCode){
+      el.syncStatus.className = 'sync-status on';
+      el.syncStatusText.textContent = 'Đã đồng bộ · ' + syncCode;
+      el.syncDisconnectedView.style.display = 'none';
+      el.syncConnectedView.style.display = 'block';
+      el.syncCodeDisplay.textContent = syncCode;
+    } else {
+      el.syncStatus.className = 'sync-status off';
+      el.syncStatusText.textContent = 'Chỉ lưu trên máy này';
+      el.syncDisconnectedView.style.display = 'block';
+      el.syncConnectedView.style.display = 'none';
+    }
+  }
+
+  function sanitizeCode(raw){
+    return raw.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-_]/g, '');
+  }
+
+  function connectSync(code){
+    if(!db){
+      showToast('Đồng bộ chưa được cấu hình trên trang này');
+      return;
+    }
+    const clean = sanitizeCode(code);
+    if(!clean){
+      showToast('Vui lòng nhập mã đồng bộ hợp lệ');
+      return;
+    }
+    if(unsubscribe) unsubscribe();
+
+    syncCode = clean;
+    localStorage.setItem(SYNC_CODE_KEY, syncCode);
+    updateSyncUI();
+
+    const docRef = db.collection(SYNC_COLLECTION).doc(syncCode);
+    unsubscribe = docRef.onSnapshot(snap => {
+      if(snap.metadata.hasPendingWrites) return;
+      if(snap.exists){
+        const data = snap.data();
+        applyingRemote = true;
+        state = {
+          initialized: !!data.initialized,
+          balance: typeof data.balance === 'number' ? data.balance : 0,
+          transactions: Array.isArray(data.transactions) ? data.transactions : [],
+          monthlyLimit: typeof data.monthlyLimit === 'number' ? data.monthlyLimit : null
+        };
+        save();
+        render();
+        applyingRemote = false;
+      } else {
+        docRef.set({
+          balance: state.balance,
+          transactions: state.transactions,
+          initialized: state.initialized,
+          monthlyLimit: state.monthlyLimit,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).catch(err => console.error('Lỗi tạo dữ liệu đồng bộ:', err));
+      }
+    }, err => {
+      console.error('Lỗi lắng nghe đồng bộ:', err);
+      showToast('Mất kết nối đồng bộ — dữ liệu vẫn lưu trên máy này');
+    });
+
+    showToast('Đã kết nối đồng bộ');
+  }
+
+  function disconnectSync(){
+    if(unsubscribe) unsubscribe();
+    unsubscribe = null;
+    syncCode = null;
+    localStorage.removeItem(SYNC_CODE_KEY);
+    updateSyncUI();
+    showToast('Đã ngắt kết nối đồng bộ');
+  }
+
+  // Gắn sự kiện định dạng dấu phẩy cho tất cả ô nhập tiền
+  document.querySelectorAll('.amount-input').forEach(attachCommaInputBehavior);
+
+  el.commaToggle.checked = useCommaFormat;
+  el.commaToggle.addEventListener('change', () => {
+    useCommaFormat = el.commaToggle.checked;
+    localStorage.setItem(COMMA_PREF_KEY, String(useCommaFormat));
+    refreshAllAmountInputs();
+    showToast(useCommaFormat ? 'Đã bật dấu phẩy khi nhập tiền' : 'Đã tắt dấu phẩy khi nhập tiền');
+  });
+
+  // Sự kiện nút chọn nhanh số tiền (+50,000, +100,000...)
+  document.querySelectorAll('.quick-chips').forEach(group => {
+    group.addEventListener('click', e => {
+      const btn = e.target.closest('.chip-btn');
+      if(!btn) return;
+      const targetInput = document.getElementById(group.dataset.target);
+      const addVal = parseInt(btn.dataset.val, 10) || 0;
+      const currentVal = parseRawDigits(targetInput.value) || 0;
+      const nextVal = currentVal + addVal;
+      targetInput.value = formatInputString(String(nextVal));
+      targetInput.focus();
+    });
+  });
+
+  // Sự kiện biểu đồ đường
+  el.chartModeMonthBtn.addEventListener('click', () => {
+    chartMode = 'month';
+    el.chartModeMonthBtn.classList.add('active');
+    el.chartModeDayBtn.classList.remove('active');
+    el.chartDayMonthSelect.style.display = 'none';
+    el.chartTooltip.classList.remove('show');
+    drawLineChart(computeAnalytics().monthsAsc);
+  });
+
+  el.chartModeDayBtn.addEventListener('click', () => {
+    chartMode = 'day';
+    el.chartModeDayBtn.classList.add('active');
+    el.chartModeMonthBtn.classList.remove('active');
+    el.chartDayMonthSelect.style.display = 'inline-block';
+    el.chartTooltip.classList.remove('show');
+    drawLineChart(computeAnalytics().monthsAsc);
+  });
+
+  el.chartDayMonthSelect.addEventListener('change', () => {
+    selectedChartMonthKey = el.chartDayMonthSelect.value;
+    el.chartTooltip.classList.remove('show');
+    drawLineChart(computeAnalytics().monthsAsc);
+  });
+
+  el.trendCanvas.addEventListener('mousemove', e => handleChartPointer(e.clientX));
+  el.trendCanvas.addEventListener('touchstart', e => {
+    if(e.touches && e.touches[0]) handleChartPointer(e.touches[0].clientX);
+  }, { passive: true });
+  el.trendCanvas.addEventListener('mouseleave', () => el.chartTooltip.classList.remove('show'));
+  window.addEventListener('resize', () => drawLineChart(computeAnalytics().monthsAsc));
+
+  // Sự kiện chọn tháng từ bảng tổng hợp tháng hoặc dropdown
+  el.monthlyTableBody.addEventListener('click', e => {
+    const tr = e.target.closest('tr[data-month]');
+    if(!tr) return;
+    const mKey = tr.dataset.month;
+    selectedLedgerMonth = (selectedLedgerMonth === mKey) ? 'all' : mKey;
+    render();
+    showToast(selectedLedgerMonth === 'all'
+      ? 'Đang hiển thị tất cả các tháng'
+      : `Đang lọc giao dịch ${formatMonthLabel(selectedLedgerMonth)}`);
+  });
+
+  el.ledgerMonthFilter.addEventListener('change', () => {
+    selectedLedgerMonth = el.ledgerMonthFilter.value;
+    render();
+  });
+
+  // Sự kiện đồng bộ, giới hạn chi tiêu, thêm/xóa giao dịch
+  el.syncToggleBtn.addEventListener('click', () => {
+    el.syncPanel.classList.toggle('show');
+  });
+  el.syncConnectBtn.addEventListener('click', () => {
+    connectSync(el.syncCodeInput.value);
+    el.syncCodeInput.value = '';
+  });
+  el.syncCodeInput.addEventListener('keydown', e => {
+    if(e.key === 'Enter'){ connectSync(el.syncCodeInput.value); el.syncCodeInput.value = ''; }
+  });
+  el.syncDisconnectBtn.addEventListener('click', disconnectSync);
+
+  el.budgetEditBtn.addEventListener('click', () => {
+    const showing = el.budgetSetForm.style.display !== 'none';
+    if(!showing && state.monthlyLimit){
+      el.budgetLimitInput.value = formatInputString(String(state.monthlyLimit));
+    }
+    el.budgetSetForm.style.display = showing ? 'none' : 'flex';
+  });
+  el.budgetSaveBtn.addEventListener('click', setBudgetLimit);
+  el.budgetClearBtn.addEventListener('click', clearBudgetLimit);
+  el.budgetLimitInput.addEventListener('keydown', e => { if(e.key === 'Enter') setBudgetLimit(); });
+
+  el.setupBtn.addEventListener('click', setup);
+  el.setupAmount.addEventListener('keydown', e => { if(e.key === 'Enter') setup(); });
+
+  el.expenseBtn.addEventListener('click', () => addTransaction('expense', el.expenseName, el.expenseAmount, 'Khoản chi'));
+  el.expenseAmount.addEventListener('keydown', e => { if(e.key === 'Enter') addTransaction('expense', el.expenseName, el.expenseAmount, 'Khoản chi'); });
+
+  el.incomeBtn.addEventListener('click', () => addTransaction('income', el.incomeName, el.incomeAmount, 'Tiền thêm vào'));
+  el.incomeAmount.addEventListener('keydown', e => { if(e.key === 'Enter') addTransaction('income', el.incomeName, el.incomeAmount, 'Tiền thêm vào'); });
+
+  el.rows.addEventListener('click', e => {
+    const btn = e.target.closest('.del');
+    if(!btn) return;
+    deleteTransaction(btn.dataset.id);
+  });
+
+  refreshAllAmountInputs();
+  updateSyncUI();
+  render();
+
+  const savedCode = localStorage.getItem(SYNC_CODE_KEY);
+  if(SYNC_ENABLED && savedCode){
+    connectSync(savedCode);
+  }
+})();
+</script>
+</body>
+</html>
