@@ -36,12 +36,12 @@
     padding:28px 16px 80px;
   }
 
-  .wrap{max-width:840px; margin:0 auto;}
+  .wrap{max-width:860px; margin:0 auto;}
 
-  /* ---------- New Year 1/1 Auto Banner ---------- */
+  /* ---------- New Year 1/1 & End-of-Month Auto Banners ---------- */
   .ny-banner{
     display:none;
-    margin-bottom:16px;
+    margin-bottom:14px;
     background:linear-gradient(135deg, #5c4414 0%, #8c6a22 100%);
     color:var(--paper);
     border:1px solid var(--brass-soft);
@@ -72,6 +72,53 @@
     font-size:12.5px;
     padding:8px 14px;
     white-space:nowrap;
+  }
+
+  .eom-banner{
+    display:none;
+    margin-bottom:14px;
+    background:linear-gradient(135deg, #214639 0%, #2f5e4d 100%);
+    color:var(--paper);
+    border:1px solid rgba(233,217,171,0.5);
+    border-radius:var(--radius);
+    padding:12px 16px;
+    box-shadow:0 12px 26px -18px rgba(27,58,47,0.5);
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .eom-banner.show{display:flex;}
+  .eom-banner-text{
+    font-size:13px;
+    line-height:1.45;
+  }
+  .eom-banner-text strong{
+    font-family:'Fraunces', serif;
+    font-size:14.5px;
+    color:var(--brass-soft);
+    margin-right:6px;
+  }
+  .eom-banner-actions{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .eom-banner-btn{
+    width:auto;
+    background:var(--brass-soft);
+    color:var(--ink);
+    font-size:12px;
+    padding:7px 13px;
+    white-space:nowrap;
+  }
+  .eom-banner-close{
+    width:auto;
+    background:transparent;
+    border:1px solid rgba(251,248,239,0.28);
+    color:rgba(251,248,239,0.8);
+    font-size:12px;
+    padding:6px 10px;
   }
 
   /* ---------- Header / passbook cover + Tổng Thu / Chi ở trên cùng ---------- */
@@ -113,6 +160,12 @@
     background:var(--brass);
     box-shadow:0 0 0 3px rgba(184,146,63,0.25);
   }
+  .header-quick-links{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    flex-wrap:wrap;
+  }
   .header-quick-link{
     width:auto;
     background:rgba(251,248,239,0.12);
@@ -124,7 +177,7 @@
     border-radius:999px;
   }
   .header-quick-link:hover{
-    background:rgba(251,248,239,0.2);
+    background:rgba(251,248,239,0.22);
     opacity:1;
   }
   h1{
@@ -321,9 +374,75 @@
   }
   .setup .setup-form{display:flex; gap:8px; flex:1 1 260px;}
 
+  /* ---------- SECTION VIEW SWITCHER BAR (CHUYỂN QUA CHUYỂN LẠI GIỮA CÁC MỤC RIÊNG) ---------- */
+  .section-nav-bar{
+    margin-top:18px;
+    background:var(--paper);
+    border:1.5px solid var(--paper-line);
+    border-radius:var(--radius);
+    padding:6px;
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:6px;
+    box-shadow:0 10px 24px -18px rgba(27,58,47,0.4);
+  }
+  @media (max-width:600px){
+    .section-nav-bar{grid-template-columns:1fr;}
+  }
+  .section-tab-btn{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+    padding:11px 12px;
+    font-size:13px;
+    font-weight:600;
+    border-radius:10px;
+    background:transparent;
+    color:var(--ink-soft);
+    border:1px solid transparent;
+    transition:all .18s ease;
+  }
+  .section-tab-btn:hover:not(.active){
+    background:rgba(27,58,47,0.05);
+    border-color:var(--paper-line);
+    opacity:1;
+  }
+  .section-tab-btn.active{
+    background:var(--ink);
+    color:var(--paper);
+    box-shadow:0 6px 14px -6px rgba(27,58,47,0.55);
+  }
+  .tab-pill-badge{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    font-weight:600;
+    padding:2px 7px;
+    border-radius:999px;
+    background:var(--brass-soft);
+    color:#5c4a1e;
+  }
+  .section-tab-btn.active .tab-pill-badge{
+    background:var(--brass);
+    color:#fffdf6;
+  }
+
+  .view-section{
+    display:none;
+  }
+  .view-section.active{
+    display:block;
+    animation:fadeSlideIn .2s ease;
+  }
+  @keyframes fadeSlideIn{
+    from{opacity:0; transform:translateY(5px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+
   /* ---------- Comma Format Option Bar ---------- */
   .format-bar{
-    margin-top:18px;
+    margin-top:16px;
     background:var(--paper);
     border:1px solid var(--paper-line);
     border-radius:var(--radius);
@@ -734,7 +853,7 @@
   .month-nav-btn{
     width:auto;
     border-radius:0;
-    padding:6px 10px;
+    padding:6px 11px;
     font-size:12px;
     background:transparent;
     color:var(--ink);
@@ -1024,13 +1143,233 @@
   .limit-pill.ok{background:rgba(47,107,79,0.12); color:var(--stamp-green);}
   .limit-pill.warn{background:rgba(184,146,63,0.2); color:#785b1c;}
   .limit-pill.over{background:rgba(161,61,61,0.14); color:var(--stamp-red);}
+  .analyze-row-btn{
+    width:auto;
+    padding:4px 9px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    font-weight:600;
+    border-radius:6px;
+    background:rgba(27,58,47,0.07);
+    border:1px solid var(--paper-line);
+    color:var(--ink);
+  }
+  .analyze-row-btn:hover{
+    background:var(--ink);
+    color:var(--paper);
+    border-color:var(--ink);
+    opacity:1;
+  }
   .val-in{font-family:'IBM Plex Mono', monospace; font-weight:600; color:var(--stamp-green);}
   .val-out{font-family:'IBM Plex Mono', monospace; font-weight:600; color:var(--stamp-red);}
   .val-net{font-family:'IBM Plex Mono', monospace; font-weight:600;}
 
+  /* ---------- DEDICATED END-OF-MONTH NARRATIVE ANALYSIS CARD ---------- */
+  .analysis-card{
+    margin-top:16px;
+    background:var(--paper);
+    border:1.5px solid var(--ink-soft);
+    border-radius:var(--radius);
+    box-shadow:0 14px 32px -18px rgba(27,58,47,0.45);
+    overflow:hidden;
+  }
+  .analysis-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+    padding:18px 20px;
+    background:linear-gradient(135deg, rgba(27,58,47,0.08) 0%, rgba(184,146,63,0.14) 100%);
+    border-bottom:1px solid var(--paper-line);
+  }
+  .analysis-title-block{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+  }
+  .analysis-title-row{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    flex-wrap:wrap;
+  }
+  .analysis-head h2{
+    font-family:'Fraunces', serif;
+    font-size:19px;
+    font-weight:600;
+    margin:0;
+  }
+  .month-status-pill{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    font-weight:600;
+    padding:3px 9px;
+    border-radius:999px;
+  }
+  .month-status-pill.closed{
+    background:var(--ink);
+    color:var(--brass-soft);
+  }
+  .month-status-pill.ongoing{
+    background:rgba(184,146,63,0.22);
+    border:1px solid var(--brass);
+    color:#664c18;
+  }
+  .analysis-sub{
+    font-size:12.5px;
+    color:var(--muted);
+  }
+  .analysis-nav-controls{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .analysis-body{
+    padding:20px;
+  }
+  .analysis-kpis{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:10px;
+    margin-bottom:18px;
+  }
+  @media (max-width:680px){ .analysis-kpis{grid-template-columns:repeat(2, 1fr);} }
+  @media (max-width:400px){ .analysis-kpis{grid-template-columns:1fr;} }
+
+  /* Verdict banner inside analysis */
+  .verdict-box{
+    border-radius:12px;
+    padding:14px 16px;
+    margin-bottom:16px;
+    border:1px solid var(--paper-line);
+    background:#fff;
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .verdict-box.excellent{
+    background:rgba(47,107,79,0.08);
+    border-color:rgba(47,107,79,0.35);
+  }
+  .verdict-box.balanced{
+    background:rgba(43,95,142,0.07);
+    border-color:rgba(43,95,142,0.32);
+  }
+  .verdict-box.warning{
+    background:rgba(161,61,61,0.08);
+    border-color:rgba(161,61,61,0.35);
+  }
+  .verdict-box.neutral{
+    background:rgba(138,131,104,0.08);
+    border-color:var(--paper-line);
+  }
+  .verdict-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--muted);
+    margin-bottom:4px;
+  }
+  .verdict-headline{
+    font-family:'Fraunces', serif;
+    font-size:17px;
+    font-weight:600;
+    color:var(--ink);
+  }
+
+  /* Narrative prose blocks */
+  .narrative-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:14px;
+  }
+  .narrative-block{
+    background:#fff;
+    border:1px solid var(--paper-line);
+    border-left:4px solid var(--brass);
+    border-radius:11px;
+    padding:15px 17px;
+  }
+  .narrative-block.income-accent{border-left-color:var(--stamp-green);}
+  .narrative-block.expense-accent{border-left-color:var(--stamp-red);}
+  .narrative-block.advice-accent{
+    border-left-color:var(--ink);
+    background:rgba(251,248,239,0.75);
+  }
+  .narrative-block-title{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:.07em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:7px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .narrative-prose{
+    font-size:14.2px;
+    line-height:1.68;
+    color:var(--ink);
+    margin:0;
+  }
+  .narrative-prose strong{
+    color:var(--ink);
+    font-weight:700;
+  }
+  .narrative-list{
+    margin:6px 0 0;
+    padding-left:18px;
+    font-size:14px;
+    line-height:1.65;
+    color:var(--ink);
+  }
+  .narrative-list li{
+    margin-bottom:6px;
+  }
+  .narrative-list li:last-child{
+    margin-bottom:0;
+  }
+
+  .analysis-footer-bar{
+    margin-top:16px;
+    padding-top:14px;
+    border-top:1px dashed var(--paper-line);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .analysis-footer-btns{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .secondary-action-btn{
+    width:auto;
+    background:#fff;
+    border:1px solid var(--paper-line);
+    color:var(--ink);
+    font-size:12.5px;
+    padding:8px 13px;
+  }
+  .secondary-action-btn:hover{
+    background:var(--brass-soft);
+    border-color:var(--brass);
+    opacity:1;
+  }
+
   /* ---------- Annual Year-End Statistics Card (Tổng kết năm 1/1 hằng năm) ---------- */
   .annual-card{
-    margin-top:20px;
+    margin-top:16px;
     background:var(--paper);
     border:1.5px solid var(--brass);
     border-radius:var(--radius);
@@ -1357,14 +1696,29 @@
       <strong id="nyBannerTitle">🎊 Tổng kết năm mới 01/01</strong>
       <span id="nyBannerSub">Bảng thống kê tổng kết thu chi cả năm đã được lập tự động.</span>
     </div>
-    <button type="button" class="ny-banner-btn" id="nyJumpBtn">Xem bảng thống kê năm ↓</button>
+    <button type="button" class="ny-banner-btn" id="nyJumpBtn">Xem bảng thống kê năm →</button>
+  </div>
+
+  <!-- THÔNG BÁO KHI CÓ THÁNG VỪA KẾT THÚC -->
+  <div class="eom-banner" id="eomBanner">
+    <div class="eom-banner-text">
+      <strong id="eomBannerTitle">📑 Đã kết thúc tháng</strong>
+      <span id="eomBannerSub">Bản phân tích & nhận xét chi tiêu tháng vừa qua đã sẵn sàng.</span>
+    </div>
+    <div class="eom-banner-actions">
+      <button type="button" class="eom-banner-btn" id="eomJumpBtn">Đọc phân tích tháng →</button>
+      <button type="button" class="eom-banner-close" id="eomDismissBtn" title="Ẩn thông báo này">✕</button>
+    </div>
   </div>
 
   <!-- PHẦN TRÊN CÙNG: TỔNG THU, TỔNG CHI & SỐ DƯ HIỆN TẠI -->
   <header class="cover">
     <div class="cover-top-row">
       <div class="eyebrow">Sổ quỹ cá nhân</div>
-      <button type="button" class="header-quick-link" id="scrollToAnnualBtn">📊 Tổng kết năm (1/1)</button>
+      <div class="header-quick-links">
+        <button type="button" class="header-quick-link" id="quickToAnalysisBtn">🧠 Phân tích tháng</button>
+        <button type="button" class="header-quick-link" id="scrollToAnnualBtn">📊 Tổng kết năm (1/1)</button>
+      </div>
     </div>
     <h1>Theo dõi thu chi</h1>
 
@@ -1420,283 +1774,387 @@
     </div>
   </div>
 
-  <!-- TÙY CHỌN ĐỊNH DẠNG DẤU PHẨY KHI NHẬP TIỀN -->
-  <div class="format-bar">
-    <div class="format-bar-info">
-      <span class="format-bar-title">Hiển thị dấu phẩy khi nhập số tiền</span>
-      <span class="format-bar-sub" id="commaExampleText">Ví dụ: 1,500,000 ₫ (dễ đọc hàng nghìn, triệu)</span>
-    </div>
-    <label class="toggle-pill" for="commaToggle">
-      <input type="checkbox" id="commaToggle" checked>
-      <span class="toggle-track"></span>
-      <span class="toggle-state-text" id="commaToggleLabel">Đang bật (1,000)</span>
-    </label>
-  </div>
+  <!-- THANH CHUYỂN QUA CHUYỂN LẠI GIỮA CÁC MỤC RIÊNG -->
+  <nav class="section-nav-bar" aria-label="Chuyển đổi mục hiển thị">
+    <button type="button" class="section-tab-btn active" data-view="main" id="tabBtnMain">
+      <span>📒 Sổ ghi & Biểu đồ</span>
+    </button>
+    <button type="button" class="section-tab-btn" data-view="monthAnalysis" id="tabBtnMonthAnalysis">
+      <span>🧠 Phân tích kết thúc tháng</span>
+      <span class="tab-pill-badge" id="tabAnalysisBadge">Mới</span>
+    </button>
+    <button type="button" class="section-tab-btn" data-view="annual" id="tabBtnAnnual">
+      <span>📊 Tổng kết năm (1/1)</span>
+    </button>
+  </nav>
 
-  <!-- NHẬP KHOẢN CHI & KHOẢN THU (CÓ GÁN NHÃN PHÂN LOẠI) -->
-  <div class="panels">
-    <div class="panel expense">
-      <div class="panel-title"><span class="dot"></span> Ghi khoản chi</div>
-      <div class="field">
-        <label for="expenseName">Tên khoản chi</label>
-        <input type="text" id="expenseName" placeholder="Ví dụ: Cơm trưa, mua sách...">
+  <!-- =====================================================================
+       MỤC 1: SỔ GHI THU CHI, GIỚI HẠN THÁNG, BIỂU ĐỒ, BẢNG SO SÁNH & LỊCH SỬ
+       ===================================================================== -->
+  <section class="view-section active" id="viewMain">
+
+    <!-- TÙY CHỌN ĐỊNH DẠNG DẤU PHẨY KHI NHẬP TIỀN -->
+    <div class="format-bar">
+      <div class="format-bar-info">
+        <span class="format-bar-title">Hiển thị dấu phẩy khi nhập số tiền</span>
+        <span class="format-bar-sub" id="commaExampleText">Ví dụ: 1,500,000 ₫ (dễ đọc hàng nghìn, triệu)</span>
       </div>
-      <div class="field">
-        <label>Gán nhãn phân loại</label>
-        <div class="tag-picker" id="expenseTagPicker"></div>
-        <div class="custom-tag-creator" id="expenseCustomTagBox">
-          <input type="text" id="expenseCustomTagInput" placeholder="Tên nhãn mới (vd: Sức khỏe)...">
-          <button type="button" id="expenseCustomTagAddBtn">Thêm</button>
-        </div>
-      </div>
-      <div class="field">
-        <label for="expenseAmount">Số tiền</label>
-        <input type="text" class="amount-input" id="expenseAmount" placeholder="0" inputmode="numeric">
-        <div class="quick-chips" data-target="expenseAmount">
-          <button type="button" class="chip-btn" data-val="50000">+50,000</button>
-          <button type="button" class="chip-btn" data-val="100000">+100,000</button>
-          <button type="button" class="chip-btn" data-val="200000">+200,000</button>
-          <button type="button" class="chip-btn" data-val="500000">+500,000</button>
-        </div>
-      </div>
-      <button class="btn-expense" id="expenseBtn">− Trừ khoản chi</button>
+      <label class="toggle-pill" for="commaToggle">
+        <input type="checkbox" id="commaToggle" checked>
+        <span class="toggle-track"></span>
+        <span class="toggle-state-text" id="commaToggleLabel">Đang bật (1,000)</span>
+      </label>
     </div>
 
-    <div class="panel income">
-      <div class="panel-title"><span class="dot"></span> Thêm tiền vào</div>
-      <div class="field">
-        <label for="incomeName">Nguồn tiền (không bắt buộc)</label>
-        <input type="text" id="incomeName" placeholder="Ví dụ: Lương, học bổng, được cho...">
-      </div>
-      <div class="field">
-        <label>Gán nhãn phân loại</label>
-        <div class="tag-picker" id="incomeTagPicker"></div>
-        <div class="custom-tag-creator" id="incomeCustomTagBox">
-          <input type="text" id="incomeCustomTagInput" placeholder="Tên nhãn mới (vd: Thưởng)...">
-          <button type="button" id="incomeCustomTagAddBtn">Thêm</button>
+    <!-- NHẬP KHOẢN CHI & KHOẢN THU (CÓ GÁN NHÃN PHÂN LOẠI) -->
+    <div class="panels">
+      <div class="panel expense">
+        <div class="panel-title"><span class="dot"></span> Ghi khoản chi</div>
+        <div class="field">
+          <label for="expenseName">Tên khoản chi</label>
+          <input type="text" id="expenseName" placeholder="Ví dụ: Cơm trưa, mua sách...">
         </div>
-      </div>
-      <div class="field">
-        <label for="incomeAmount">Số tiền</label>
-        <input type="text" class="amount-input" id="incomeAmount" placeholder="0" inputmode="numeric">
-        <div class="quick-chips" data-target="incomeAmount">
-          <button type="button" class="chip-btn" data-val="100000">+100,000</button>
-          <button type="button" class="chip-btn" data-val="500000">+500,000</button>
-          <button type="button" class="chip-btn" data-val="1000000">+1,000,000</button>
-          <button type="button" class="chip-btn" data-val="5000000">+5,000,000</button>
+        <div class="field">
+          <label>Gán nhãn phân loại</label>
+          <div class="tag-picker" id="expenseTagPicker"></div>
+          <div class="custom-tag-creator" id="expenseCustomTagBox">
+            <input type="text" id="expenseCustomTagInput" placeholder="Tên nhãn mới (vd: Sức khỏe)...">
+            <button type="button" id="expenseCustomTagAddBtn">Thêm</button>
+          </div>
         </div>
+        <div class="field">
+          <label for="expenseAmount">Số tiền</label>
+          <input type="text" class="amount-input" id="expenseAmount" placeholder="0" inputmode="numeric">
+          <div class="quick-chips" data-target="expenseAmount">
+            <button type="button" class="chip-btn" data-val="50000">+50,000</button>
+            <button type="button" class="chip-btn" data-val="100000">+100,000</button>
+            <button type="button" class="chip-btn" data-val="200000">+200,000</button>
+            <button type="button" class="chip-btn" data-val="500000">+500,000</button>
+          </div>
+        </div>
+        <button class="btn-expense" id="expenseBtn">− Trừ khoản chi</button>
       </div>
-      <button class="btn-income" id="incomeBtn">+ Cộng tiền vào</button>
-    </div>
-  </div>
 
-  <!-- GIỚI HẠN CHI TIÊU HÀNG THÁNG -->
-  <div class="budget-card">
-    <div class="budget-head">
-      <h3>Giới hạn chi tiêu hàng tháng</h3>
-      <div class="budget-actions">
-        <button class="budget-clear-btn" id="budgetClearBtn" style="display:none;">Xóa giới hạn</button>
-        <button class="budget-edit-btn" id="budgetEditBtn">Đặt / Sửa</button>
-      </div>
-    </div>
-    <div class="budget-set" id="budgetSetForm" style="display:none;">
-      <input type="text" class="amount-input" id="budgetLimitInput" placeholder="Ví dụ: 5,000,000" inputmode="numeric">
-      <button class="btn-setup" id="budgetSaveBtn">Lưu giới hạn</button>
-    </div>
-    <div id="budgetDisplayNoLimit" class="budget-empty">Bạn chưa đặt giới hạn chi tiêu hàng tháng. Bấm "Đặt / Sửa" để nhập mức trần chi tiêu mỗi tháng.</div>
-    <div id="budgetDisplay" style="display:none;">
-      <div class="budget-row">
-        <span id="budgetMonthLabel">Đã chi tháng này</span>
-        <span id="budgetSpentValue">0 ₫</span>
-      </div>
-      <div class="budget-bar"><div class="budget-bar-fill" id="budgetBarFill"></div></div>
-      <div class="budget-row small">
-        <span id="budgetLimitText">Giới hạn: 0 ₫</span>
-        <span id="budgetRemainingText">Còn lại: 0 ₫</span>
-      </div>
-      <div class="budget-alert-banner" id="budgetAlertBanner"></div>
-    </div>
-  </div>
-
-  <!-- BIỂU ĐỒ ĐƯỜNG THEO DÕI THU VÀ CHI THEO TỪNG THÁNG -->
-  <div class="chart-card">
-    <div class="chart-head">
-      <div class="chart-title-wrap">
-        <h2>Biểu đồ đường Thu & Chi</h2>
-        <span class="chart-subtitle" id="chartSubtitle">Chi tiết từng ngày trong tháng đang chọn</span>
-      </div>
-      <div class="chart-controls">
-        <div class="month-nav-group" id="chartMonthNavGroup">
-          <button type="button" class="month-nav-btn" id="chartPrevMonthBtn" title="Tháng trước">◀</button>
-          <select class="chart-month-select" id="chartMonthSelect" aria-label="Chọn tháng hiển thị biểu đồ"></select>
-          <button type="button" class="month-nav-btn" id="chartNextMonthBtn" title="Tháng sau">▶</button>
+      <div class="panel income">
+        <div class="panel-title"><span class="dot"></span> Thêm tiền vào</div>
+        <div class="field">
+          <label for="incomeName">Nguồn tiền (không bắt buộc)</label>
+          <input type="text" id="incomeName" placeholder="Ví dụ: Lương, học bổng, được cho...">
         </div>
-        <div class="seg-group">
-          <button type="button" class="seg-btn active" id="chartModeSingleMonthBtn">Từng tháng</button>
-          <button type="button" class="seg-btn" id="chartModeAllMonthsBtn">Tất cả tháng</button>
+        <div class="field">
+          <label>Gán nhãn phân loại</label>
+          <div class="tag-picker" id="incomeTagPicker"></div>
+          <div class="custom-tag-creator" id="incomeCustomTagBox">
+            <input type="text" id="incomeCustomTagInput" placeholder="Tên nhãn mới (vd: Thưởng)...">
+            <button type="button" id="incomeCustomTagAddBtn">Thêm</button>
+          </div>
         </div>
+        <div class="field">
+          <label for="incomeAmount">Số tiền</label>
+          <input type="text" class="amount-input" id="incomeAmount" placeholder="0" inputmode="numeric">
+          <div class="quick-chips" data-target="incomeAmount">
+            <button type="button" class="chip-btn" data-val="100000">+100,000</button>
+            <button type="button" class="chip-btn" data-val="500000">+500,000</button>
+            <button type="button" class="chip-btn" data-val="1000000">+1,000,000</button>
+            <button type="button" class="chip-btn" data-val="5000000">+5,000,000</button>
+          </div>
+        </div>
+        <button class="btn-income" id="incomeBtn">+ Cộng tiền vào</button>
       </div>
     </div>
 
-    <div class="chart-month-summary" id="chartMonthSummary">
-      <div class="cms-item">
-        <span class="cms-label" id="cmsIncomeLabel">Tổng thu tháng</span>
-        <span class="cms-val in" id="cmsIncomeVal">+0 ₫</span>
-      </div>
-      <div class="cms-item">
-        <span class="cms-label" id="cmsExpenseLabel">Tổng chi tháng</span>
-        <span class="cms-val out" id="cmsExpenseVal">−0 ₫</span>
-      </div>
-      <div class="cms-item">
-        <span class="cms-label">Chênh lệch tháng</span>
-        <span class="cms-val" id="cmsNetVal">0 ₫</span>
-      </div>
-    </div>
-
-    <div class="chart-legend">
-      <div class="legend-left">
-        <span class="legend-item"><span class="legend-dot" style="background:var(--stamp-green);"></span> Tổng Thu</span>
-        <span class="legend-item"><span class="legend-dot" style="background:var(--stamp-red);"></span> Tổng Chi</span>
-        <span class="legend-item" id="legendLimitItem" style="display:none;"><span class="legend-line-dash"></span> Giới hạn chi/tháng</span>
-      </div>
-      <span class="hover-hint">Di chuột vào đường để xem thông số</span>
-    </div>
-
-    <div class="chart-canvas-wrap" id="chartWrap">
-      <canvas id="trendCanvas"></canvas>
-      <div class="chart-tooltip" id="chartTooltip"></div>
-    </div>
-  </div>
-
-  <!-- BẢNG SO SÁNH THU & CHI THEO TỪNG THÁNG (KÈM CHÊNH LỆCH %) -->
-  <div class="monthly-card">
-    <div class="monthly-head">
-      <h2>Bảng so sánh Thu & Chi theo từng tháng</h2>
-      <span class="monthly-sub">Hiển thị chênh lệch % so với tháng trước · Bấm vào tháng để xem chi tiết</span>
-    </div>
-    <div class="monthly-table-wrap">
-      <table class="monthly-table">
-        <thead>
-          <tr>
-            <th>Tháng</th>
-            <th class="num">Tổng Thu</th>
-            <th class="num">Tổng Chi</th>
-            <th class="num">So với tháng trước (%)</th>
-            <th class="num">Chênh lệch Thu−Chi</th>
-            <th class="num">Giới hạn</th>
-          </tr>
-        </thead>
-        <tbody id="monthlyTableBody"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- BẢNG THỐNG KÊ TỔNG KẾT NĂM (TỰ ĐỘNG KÍCH HOẠT VÀO 1/1 HẰNG NĂM) -->
-  <div class="annual-card" id="annualSummaryCard">
-    <div class="annual-head">
-      <div class="annual-title-group">
-        <div class="annual-title-row">
-          <h2>Thống kê tổng kết năm</h2>
-          <span class="annual-badge" id="annualAutoBadge">Tổng kết 01/01 hằng năm</span>
+    <!-- GIỚI HẠN CHI TIÊU HÀNG THÁNG -->
+    <div class="budget-card">
+      <div class="budget-head">
+        <h3>Giới hạn chi tiêu hàng tháng</h3>
+        <div class="budget-actions">
+          <button class="budget-clear-btn" id="budgetClearBtn" style="display:none;">Xóa giới hạn</button>
+          <button class="budget-edit-btn" id="budgetEditBtn">Đặt / Sửa</button>
         </div>
-        <span class="annual-sub" id="annualSubtitle">Tổng hợp số liệu cả năm theo nhãn phân loại và từng tháng</span>
       </div>
-      <div class="annual-controls">
-        <select class="annual-year-select" id="annualYearSelect" aria-label="Chọn năm thống kê"></select>
+      <div class="budget-set" id="budgetSetForm" style="display:none;">
+        <input type="text" class="amount-input" id="budgetLimitInput" placeholder="Ví dụ: 5,000,000" inputmode="numeric">
+        <button class="btn-setup" id="budgetSaveBtn">Lưu giới hạn</button>
+      </div>
+      <div id="budgetDisplayNoLimit" class="budget-empty">Bạn chưa đặt giới hạn chi tiêu hàng tháng. Bấm "Đặt / Sửa" để nhập mức trần chi tiêu mỗi tháng.</div>
+      <div id="budgetDisplay" style="display:none;">
+        <div class="budget-row">
+          <span id="budgetMonthLabel">Đã chi tháng này</span>
+          <span id="budgetSpentValue">0 ₫</span>
+        </div>
+        <div class="budget-bar"><div class="budget-bar-fill" id="budgetBarFill"></div></div>
+        <div class="budget-row small">
+          <span id="budgetLimitText">Giới hạn: 0 ₫</span>
+          <span id="budgetRemainingText">Còn lại: 0 ₫</span>
+        </div>
+        <div class="budget-alert-banner" id="budgetAlertBanner"></div>
       </div>
     </div>
 
-    <div class="annual-body">
-      <div class="annual-kpis">
-        <div class="akpi">
-          <div class="akpi-label">Tổng Thu cả năm</div>
-          <div class="akpi-val in" id="annualTotalIncome">+0 ₫</div>
-          <div class="akpi-sub" id="annualIncomeYoY">So với năm trước: —</div>
+    <!-- BIỂU ĐỒ ĐƯỜNG THEO DÕI THU VÀ CHI THEO TỪNG THÁNG -->
+    <div class="chart-card">
+      <div class="chart-head">
+        <div class="chart-title-wrap">
+          <h2>Biểu đồ đường Thu & Chi</h2>
+          <span class="chart-subtitle" id="chartSubtitle">Chi tiết từng ngày trong tháng đang chọn</span>
         </div>
-        <div class="akpi">
-          <div class="akpi-label">Tổng Chi cả năm</div>
-          <div class="akpi-val out" id="annualTotalExpense">−0 ₫</div>
-          <div class="akpi-sub" id="annualExpenseYoY">So với năm trước: —</div>
-        </div>
-        <div class="akpi">
-          <div class="akpi-label">Chênh lệch ròng năm</div>
-          <div class="akpi-val" id="annualNetVal">0 ₫</div>
-          <div class="akpi-sub" id="annualSaveRate">Tỷ lệ giữ lại: —</div>
-        </div>
-        <div class="akpi">
-          <div class="akpi-label">Trung bình Chi / tháng</div>
-          <div class="akpi-val" id="annualAvgExpense">0 ₫</div>
-          <div class="akpi-sub" id="annualPeakMonth">Tháng chi cao nhất: —</div>
+        <div class="chart-controls">
+          <div class="month-nav-group" id="chartMonthNavGroup">
+            <button type="button" class="month-nav-btn" id="chartPrevMonthBtn" title="Tháng trước">◀</button>
+            <select class="chart-month-select" id="chartMonthSelect" aria-label="Chọn tháng hiển thị biểu đồ"></select>
+            <button type="button" class="month-nav-btn" id="chartNextMonthBtn" title="Tháng sau">▶</button>
+          </div>
+          <div class="seg-group">
+            <button type="button" class="seg-btn active" id="chartModeSingleMonthBtn">Từng tháng</button>
+            <button type="button" class="seg-btn" id="chartModeAllMonthsBtn">Tất cả tháng</button>
+          </div>
         </div>
       </div>
 
-      <div class="annual-section-title">
-        <span>1. Thống kê theo nhãn phân loại trong năm</span>
-        <span id="annualTagCountNote" style="font-weight:400;color:var(--muted);"></span>
-      </div>
-      <div class="monthly-table-wrap" style="margin-bottom:16px;">
-        <table class="annual-table">
-          <thead>
-            <tr>
-              <th>Nhãn</th>
-              <th class="num">Số lần</th>
-              <th class="num">Tổng Chi</th>
-              <th class="num">Tỷ trọng Chi (%)</th>
-              <th class="num">Tổng Thu</th>
-              <th class="num">Tỷ trọng Thu (%)</th>
-            </tr>
-          </thead>
-          <tbody id="annualCategoryBody"></tbody>
-        </table>
+      <div class="chart-month-summary" id="chartMonthSummary">
+        <div class="cms-item">
+          <span class="cms-label" id="cmsIncomeLabel">Tổng thu tháng</span>
+          <span class="cms-val in" id="cmsIncomeVal">+0 ₫</span>
+        </div>
+        <div class="cms-item">
+          <span class="cms-label" id="cmsExpenseLabel">Tổng chi tháng</span>
+          <span class="cms-val out" id="cmsExpenseVal">−0 ₫</span>
+        </div>
+        <div class="cms-item">
+          <span class="cms-label">Chênh lệch tháng</span>
+          <span class="cms-val" id="cmsNetVal">0 ₫</span>
+        </div>
       </div>
 
-      <div class="annual-section-title">
-        <span>2. Bảng tổng kết 12 tháng trong năm</span>
-        <span style="font-weight:400;color:var(--muted);">Đơn vị: ₫ & %</span>
+      <div class="chart-legend">
+        <div class="legend-left">
+          <span class="legend-item"><span class="legend-dot" style="background:var(--stamp-green);"></span> Tổng Thu</span>
+          <span class="legend-item"><span class="legend-dot" style="background:var(--stamp-red);"></span> Tổng Chi</span>
+          <span class="legend-item" id="legendLimitItem" style="display:none;"><span class="legend-line-dash"></span> Giới hạn chi/tháng</span>
+        </div>
+        <span class="hover-hint">Di chuột vào đường để xem thông số</span>
+      </div>
+
+      <div class="chart-canvas-wrap" id="chartWrap">
+        <canvas id="trendCanvas"></canvas>
+        <div class="chart-tooltip" id="chartTooltip"></div>
+      </div>
+    </div>
+
+    <!-- BẢNG SO SÁNH THU & CHI THEO TỪNG THÁNG (KÈM CHÊNH LỆCH %) -->
+    <div class="monthly-card">
+      <div class="monthly-head">
+        <h2>Bảng so sánh Thu & Chi theo từng tháng</h2>
+        <span class="monthly-sub">Chênh lệch % so với tháng trước · Bấm "Phân tích" để đọc nhận xét tháng</span>
       </div>
       <div class="monthly-table-wrap">
-        <table class="annual-table">
+        <table class="monthly-table">
           <thead>
             <tr>
               <th>Tháng</th>
               <th class="num">Tổng Thu</th>
               <th class="num">Tổng Chi</th>
-              <th class="num">Chênh lệch</th>
-              <th class="num">% Chi vs Tháng trước</th>
-              <th class="num">Tỷ trọng Chi năm (%)</th>
+              <th class="num">So với tháng trước (%)</th>
+              <th class="num">Chênh lệch Thu−Chi</th>
+              <th class="num">Giới hạn</th>
+              <th class="num">Nhận xét</th>
             </tr>
           </thead>
-          <tbody id="annualMonthlyBody"></tbody>
-          <tfoot id="annualMonthlyFoot"></tfoot>
+          <tbody id="monthlyTableBody"></tbody>
         </table>
       </div>
     </div>
-  </div>
 
-  <!-- LỊCH SỬ GIAO DỊCH -->
-  <div class="ledger">
-    <div class="ledger-head">
-      <h2>Lịch sử giao dịch</h2>
-      <div class="ledger-tools">
-        <select class="ledger-filter-select" id="ledgerTagFilter" aria-label="Lọc theo nhãn">
-          <option value="all">Tất cả nhãn</option>
-        </select>
-        <select class="ledger-filter-select" id="ledgerMonthFilter" aria-label="Lọc theo tháng">
-          <option value="all">Tất cả các tháng</option>
-        </select>
-        <span class="ledger-count" id="txCount">0 mục</span>
+    <!-- LỊCH SỬ GIAO DỊCH -->
+    <div class="ledger">
+      <div class="ledger-head">
+        <h2>Lịch sử giao dịch</h2>
+        <div class="ledger-tools">
+          <select class="ledger-filter-select" id="ledgerTagFilter" aria-label="Lọc theo nhãn">
+            <option value="all">Tất cả nhãn</option>
+          </select>
+          <select class="ledger-filter-select" id="ledgerMonthFilter" aria-label="Lọc theo tháng">
+            <option value="all">Tất cả các tháng</option>
+          </select>
+          <span class="ledger-count" id="txCount">0 mục</span>
+        </div>
+      </div>
+      <div class="ledger-filtered-bar" id="ledgerFilteredBar">
+        <span id="ledgerFilterSummaryText">Đang lọc</span>
+        <span id="ledgerFilterTotalsText"></span>
+      </div>
+      <ul class="rows" id="rows"></ul>
+      <div class="empty" id="emptyState">
+        <span class="glyph">✦</span>
+        Chưa có giao dịch nào được ghi lại.
       </div>
     </div>
-    <div class="ledger-filtered-bar" id="ledgerFilteredBar">
-      <span id="ledgerFilterSummaryText">Đang lọc</span>
-      <span id="ledgerFilterTotalsText"></span>
+
+  </section>
+
+  <!-- =====================================================================
+       MỤC 2 (RIÊNG BIỆT): CÂU TỪ PHÂN TÍCH KHI KẾT THÚC 1 THÁNG
+       ===================================================================== -->
+  <section class="view-section" id="viewMonthAnalysis">
+    <div class="analysis-card">
+      <div class="analysis-head">
+        <div class="analysis-title-block">
+          <div class="analysis-title-row">
+            <h2>Phân tích kết thúc tháng</h2>
+            <span class="month-status-pill closed" id="analysisMonthStatusPill">✓ Đã kết thúc tháng</span>
+          </div>
+          <span class="analysis-sub" id="analysisSubtitle">Bản nhận xét tự động dựa trên dữ liệu thu, chi và nhãn phân loại trong tháng</span>
+        </div>
+
+        <div class="analysis-nav-controls">
+          <div class="month-nav-group">
+            <button type="button" class="month-nav-btn" id="analysisPrevMonthBtn" title="Chuyển sang tháng trước">◀ Tháng trước</button>
+            <select class="chart-month-select" id="analysisMonthSelect" aria-label="Chọn tháng cần phân tích"></select>
+            <button type="button" class="month-nav-btn" id="analysisNextMonthBtn" title="Chuyển sang tháng sau">Tháng sau ▶</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="analysis-body">
+        <!-- 4 chỉ số tóm tắt nhanh của tháng được chọn -->
+        <div class="analysis-kpis">
+          <div class="akpi">
+            <div class="akpi-label">Tổng Thu tháng</div>
+            <div class="akpi-val in" id="anKpiIncome">+0 ₫</div>
+            <div class="akpi-sub" id="anKpiIncomeMoM">So với tháng trước: —</div>
+          </div>
+          <div class="akpi">
+            <div class="akpi-label">Tổng Chi tháng</div>
+            <div class="akpi-val out" id="anKpiExpense">−0 ₫</div>
+            <div class="akpi-sub" id="anKpiExpenseMoM">So với tháng trước: —</div>
+          </div>
+          <div class="akpi">
+            <div class="akpi-label">Tích lũy / Chênh lệch</div>
+            <div class="akpi-val" id="anKpiNet">0 ₫</div>
+            <div class="akpi-sub" id="anKpiSaveRate">Tỷ lệ giữ lại: —</div>
+          </div>
+          <div class="akpi">
+            <div class="akpi-label">Nhãn chi cao nhất</div>
+            <div class="akpi-val" id="anKpiTopTag" style="font-size:13.5px;">—</div>
+            <div class="akpi-sub" id="anKpiTopTagShare">Chiếm tỷ trọng: —</div>
+          </div>
+        </div>
+
+        <!-- Đánh giá tổng thể tháng -->
+        <div class="verdict-box neutral" id="anVerdictBox">
+          <div>
+            <div class="verdict-label" id="anVerdictCategory">Đánh giá tổng kết tháng</div>
+            <div class="verdict-headline" id="anVerdictHeadline">Đang tổng hợp dữ liệu...</div>
+          </div>
+        </div>
+
+        <!-- Các đoạn câu từ phân tích chi tiết -->
+        <div class="narrative-grid" id="anNarrativeContainer"></div>
+
+        <!-- Thanh điều hướng chuyển qua chuyển lại & sao chép -->
+        <div class="analysis-footer-bar">
+          <div class="analysis-footer-btns">
+            <button type="button" class="secondary-action-btn" id="anBackToMainBtn">← Quay lại Sổ ghi & Biểu đồ</button>
+            <button type="button" class="secondary-action-btn" id="anGoToAnnualBtn">📊 Xem Tổng kết năm →</button>
+          </div>
+          <button type="button" class="btn-setup" id="anCopyTextBtn" style="width:auto;font-size:12.5px;padding:8px 14px;">📋 Sao chép bản phân tích</button>
+        </div>
+      </div>
     </div>
-    <ul class="rows" id="rows"></ul>
-    <div class="empty" id="emptyState">
-      <span class="glyph">✦</span>
-      Chưa có giao dịch nào được ghi lại.
+  </section>
+
+  <!-- =====================================================================
+       MỤC 3 (RIÊNG BIỆT): BẢNG THỐNG KÊ TỔNG KẾT NĂM (1/1 HẰNG NĂM)
+       ===================================================================== -->
+  <section class="view-section" id="viewAnnual">
+    <div class="annual-card" id="annualSummaryCard">
+      <div class="annual-head">
+        <div class="annual-title-group">
+          <div class="annual-title-row">
+            <h2>Thống kê tổng kết năm</h2>
+            <span class="annual-badge" id="annualAutoBadge">Tổng kết 01/01 hằng năm</span>
+          </div>
+          <span class="annual-sub" id="annualSubtitle">Tổng hợp số liệu cả năm theo nhãn phân loại và từng tháng</span>
+        </div>
+        <div class="annual-controls">
+          <select class="annual-year-select" id="annualYearSelect" aria-label="Chọn năm thống kê"></select>
+        </div>
+      </div>
+
+      <div class="annual-body">
+        <div class="annual-kpis">
+          <div class="akpi">
+            <div class="akpi-label">Tổng Thu cả năm</div>
+            <div class="akpi-val in" id="annualTotalIncome">+0 ₫</div>
+            <div class="akpi-sub" id="annualIncomeYoY">So với năm trước: —</div>
+          </div>
+          <div class="akpi">
+            <div class="akpi-label">Tổng Chi cả năm</div>
+            <div class="akpi-val out" id="annualTotalExpense">−0 ₫</div>
+            <div class="akpi-sub" id="annualExpenseYoY">So với năm trước: —</div>
+          </div>
+          <div class="akpi">
+            <div class="akpi-label">Chênh lệch ròng năm</div>
+            <div class="akpi-val" id="annualNetVal">0 ₫</div>
+            <div class="akpi-sub" id="annualSaveRate">Tỷ lệ giữ lại: —</div>
+          </div>
+          <div class="akpi">
+            <div class="akpi-label">Trung bình Chi / tháng</div>
+            <div class="akpi-val" id="annualAvgExpense">0 ₫</div>
+            <div class="akpi-sub" id="annualPeakMonth">Tháng chi cao nhất: —</div>
+          </div>
+        </div>
+
+        <div class="annual-section-title">
+          <span>1. Thống kê theo nhãn phân loại trong năm</span>
+          <span id="annualTagCountNote" style="font-weight:400;color:var(--muted);"></span>
+        </div>
+        <div class="monthly-table-wrap" style="margin-bottom:16px;">
+          <table class="annual-table">
+            <thead>
+              <tr>
+                <th>Nhãn</th>
+                <th class="num">Số lần</th>
+                <th class="num">Tổng Chi</th>
+                <th class="num">Tỷ trọng Chi (%)</th>
+                <th class="num">Tổng Thu</th>
+                <th class="num">Tỷ trọng Thu (%)</th>
+              </tr>
+            </thead>
+            <tbody id="annualCategoryBody"></tbody>
+          </table>
+        </div>
+
+        <div class="annual-section-title">
+          <span>2. Bảng tổng kết 12 tháng trong năm</span>
+          <span style="font-weight:400;color:var(--muted);">Đơn vị: ₫ & %</span>
+        </div>
+        <div class="monthly-table-wrap">
+          <table class="annual-table">
+            <thead>
+              <tr>
+                <th>Tháng</th>
+                <th class="num">Tổng Thu</th>
+                <th class="num">Tổng Chi</th>
+                <th class="num">Chênh lệch</th>
+                <th class="num">% Chi vs Tháng trước</th>
+                <th class="num">Tỷ trọng Chi năm (%)</th>
+              </tr>
+            </thead>
+            <tbody id="annualMonthlyBody"></tbody>
+            <tfoot id="annualMonthlyFoot"></tfoot>
+          </table>
+        </div>
+
+        <div class="analysis-footer-bar">
+          <div class="analysis-footer-btns">
+            <button type="button" class="secondary-action-btn" id="annualBackToMainBtn">← Quay lại Sổ ghi & Biểu đồ</button>
+            <button type="button" class="secondary-action-btn" id="annualGoToAnalysisBtn">🧠 Xem Phân tích từng tháng →</button>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
+  </section>
 
   <footer>Dữ liệu lưu trên trình duyệt của bạn. Bật "Đồng bộ thiết bị" ở trên để dùng chung số liệu trên nhiều máy.</footer>
 </div>
@@ -1708,6 +2166,7 @@
   const STORAGE_KEY = 'so-quy-data-v1';
   const SYNC_CODE_KEY = 'so-quy-sync-code-v1';
   const COMMA_PREF_KEY = 'so-quy-comma-format-v1';
+  const EOM_DISMISS_KEY = 'so-quy-eom-dismissed-month-v1';
 
   // ============================================================
   // GIỮ NGUYÊN CẤU HÌNH FIREBASE HIỆN CÓ
@@ -1748,10 +2207,12 @@
   let applyingRemote = false;
   let writeTimer = null;
 
-  // Trạng thái hiển thị UI
+  // Trạng thái hiển thị UI & chuyển mục
+  let activeView = 'main'; // 'main' | 'monthAnalysis' | 'annual'
   let useCommaFormat = localStorage.getItem(COMMA_PREF_KEY) !== 'false';
   let chartMode = 'singleMonth';
   let selectedChartMonthKey = getMonthKey(Date.now());
+  let selectedAnalysisMonthKey = null; // Sẽ tự chọn tháng kết thúc gần nhất
   let selectedLedgerMonth = 'all';
   let selectedLedgerTag = 'all';
   let selectedExpenseTag = 'Ăn uống';
@@ -1760,6 +2221,7 @@
   let chartPointsCache = [];
   let hoveredPointIndex = -1;
   let cachedMonthsAsc = [];
+  let lastGeneratedAnalysisPlainText = '';
 
   // Tự động nhận diện ngày 1/1 hằng năm để tổng kết năm trước
   const startupNow = new Date();
@@ -1817,7 +2279,7 @@
     }
   }
 
-  // Quản lý danh sách nhãn (mặc định + nhãn người dùng tự thêm)
+  // Quản lý danh sách nhãn
   function getAllTags(){
     const list = DEFAULT_TAGS.map(t => ({ ...t }));
     const seen = new Set(list.map(t => t.name.toLowerCase()));
@@ -1898,7 +2360,6 @@
     return (Number.isInteger(rounded) ? rounded.toString() : rounded.toFixed(1)) + '%';
   }
 
-  // Tính chênh lệch % giữa kỳ hiện tại và kỳ trước
   function calcMoMChange(currVal, prevVal){
     if(prevVal === null || prevVal === undefined){
       return { status: 'first', text: 'Kỳ đầu', pct: null };
@@ -1919,7 +2380,6 @@
     };
   }
 
-  // Xử lý ô nhập tiền có dấu phẩy
   function parseRawDigits(str){
     const digits = String(str || '').replace(/\D/g, '');
     return digits ? parseInt(digits, 10) : NaN;
@@ -1984,6 +2444,17 @@
     return `${y}-${m}`;
   }
 
+  function getPreviousMonthKey(monthKey){
+    const [yStr, mStr] = monthKey.split('-');
+    let y = parseInt(yStr, 10);
+    let m = parseInt(mStr, 10) - 1;
+    if(m < 1){
+      m = 12;
+      y -= 1;
+    }
+    return `${y}-${String(m).padStart(2, '0')}`;
+  }
+
   function formatMonthLabel(monthKey){
     const [y, m] = monthKey.split('-');
     return `Tháng ${m}/${y}`;
@@ -2000,7 +2471,20 @@
     nyBannerTitle: document.getElementById('nyBannerTitle'),
     nyBannerSub: document.getElementById('nyBannerSub'),
     nyJumpBtn: document.getElementById('nyJumpBtn'),
+    eomBanner: document.getElementById('eomBanner'),
+    eomBannerTitle: document.getElementById('eomBannerTitle'),
+    eomBannerSub: document.getElementById('eomBannerSub'),
+    eomJumpBtn: document.getElementById('eomJumpBtn'),
+    eomDismissBtn: document.getElementById('eomDismissBtn'),
+    quickToAnalysisBtn: document.getElementById('quickToAnalysisBtn'),
     scrollToAnnualBtn: document.getElementById('scrollToAnnualBtn'),
+    tabBtnMain: document.getElementById('tabBtnMain'),
+    tabBtnMonthAnalysis: document.getElementById('tabBtnMonthAnalysis'),
+    tabBtnAnnual: document.getElementById('tabBtnAnnual'),
+    tabAnalysisBadge: document.getElementById('tabAnalysisBadge'),
+    viewMain: document.getElementById('viewMain'),
+    viewMonthAnalysis: document.getElementById('viewMonthAnalysis'),
+    viewAnnual: document.getElementById('viewAnnual'),
     balanceValue: document.getElementById('balanceValue'),
     lastUpdate: document.getElementById('lastUpdate'),
     setupBox: document.getElementById('setupBox'),
@@ -2053,6 +2537,28 @@
     budgetRemainingText: document.getElementById('budgetRemainingText'),
     budgetAlertBanner: document.getElementById('budgetAlertBanner'),
     monthlyTableBody: document.getElementById('monthlyTableBody'),
+    // Dedicated Month Analysis Elements
+    analysisMonthStatusPill: document.getElementById('analysisMonthStatusPill'),
+    analysisSubtitle: document.getElementById('analysisSubtitle'),
+    analysisPrevMonthBtn: document.getElementById('analysisPrevMonthBtn'),
+    analysisMonthSelect: document.getElementById('analysisMonthSelect'),
+    analysisNextMonthBtn: document.getElementById('analysisNextMonthBtn'),
+    anKpiIncome: document.getElementById('anKpiIncome'),
+    anKpiIncomeMoM: document.getElementById('anKpiIncomeMoM'),
+    anKpiExpense: document.getElementById('anKpiExpense'),
+    anKpiExpenseMoM: document.getElementById('anKpiExpenseMoM'),
+    anKpiNet: document.getElementById('anKpiNet'),
+    anKpiSaveRate: document.getElementById('anKpiSaveRate'),
+    anKpiTopTag: document.getElementById('anKpiTopTag'),
+    anKpiTopTagShare: document.getElementById('anKpiTopTagShare'),
+    anVerdictBox: document.getElementById('anVerdictBox'),
+    anVerdictCategory: document.getElementById('anVerdictCategory'),
+    anVerdictHeadline: document.getElementById('anVerdictHeadline'),
+    anNarrativeContainer: document.getElementById('anNarrativeContainer'),
+    anBackToMainBtn: document.getElementById('anBackToMainBtn'),
+    anGoToAnnualBtn: document.getElementById('anGoToAnnualBtn'),
+    anCopyTextBtn: document.getElementById('anCopyTextBtn'),
+    // Annual Elements
     annualSummaryCard: document.getElementById('annualSummaryCard'),
     annualAutoBadge: document.getElementById('annualAutoBadge'),
     annualSubtitle: document.getElementById('annualSubtitle'),
@@ -2069,6 +2575,9 @@
     annualCategoryBody: document.getElementById('annualCategoryBody'),
     annualMonthlyBody: document.getElementById('annualMonthlyBody'),
     annualMonthlyFoot: document.getElementById('annualMonthlyFoot'),
+    annualBackToMainBtn: document.getElementById('annualBackToMainBtn'),
+    annualGoToAnalysisBtn: document.getElementById('annualGoToAnalysisBtn'),
+    // Ledger & Chart Elements
     ledgerTagFilter: document.getElementById('ledgerTagFilter'),
     ledgerMonthFilter: document.getElementById('ledgerMonthFilter'),
     ledgerFilteredBar: document.getElementById('ledgerFilteredBar'),
@@ -2099,6 +2608,32 @@
     el.toast.classList.add('show');
     clearTimeout(toastTimer);
     toastTimer = setTimeout(()=> el.toast.classList.remove('show'), 2200);
+  }
+
+  // Hàm chuyển qua chuyển lại giữa 3 mục riêng
+  function switchView(viewName, options = {}){
+    activeView = viewName;
+    el.viewMain.classList.toggle('active', viewName === 'main');
+    el.viewMonthAnalysis.classList.toggle('active', viewName === 'monthAnalysis');
+    el.viewAnnual.classList.toggle('active', viewName === 'annual');
+
+    el.tabBtnMain.classList.toggle('active', viewName === 'main');
+    el.tabBtnMonthAnalysis.classList.toggle('active', viewName === 'monthAnalysis');
+    el.tabBtnAnnual.classList.toggle('active', viewName === 'annual');
+
+    if(viewName === 'main'){
+      // Vẽ lại canvas biểu đồ khi quay lại tab chính để đảm bảo đúng kích thước
+      requestAnimationFrame(() => drawLineChart(cachedMonthsAsc));
+    }
+    if(!options.noScroll){
+      const navEl = document.querySelector('.section-nav-bar');
+      if(navEl){
+        const topPos = navEl.getBoundingClientRect().top + window.scrollY - 12;
+        if(window.scrollY > topPos){
+          window.scrollTo({ top: topPos, behavior: 'smooth' });
+        }
+      }
+    }
   }
 
   // Render bộ chọn nhãn ở khung Chi & khung Thu
@@ -2180,7 +2715,6 @@
     });
 
     const monthsAsc = Array.from(monthMap.values()).sort((a,b) => a.key.localeCompare(b.key));
-    // Tính chênh lệch % so với tháng liền trước cho từng tháng
     monthsAsc.forEach((m, idx) => {
       const prev = idx > 0 ? monthsAsc[idx - 1] : null;
       m.expenseMoM = calcMoMChange(m.expense, prev ? prev.expense : null);
@@ -2243,7 +2777,7 @@
       : 'Vượt: ' + formatVND(Math.abs(remaining)) + ' ₫';
   }
 
-  // Bảng so sánh từng tháng kèm sự chênh lệch theo %
+  // Bảng so sánh từng tháng kèm sự chênh lệch theo % và nút chuyển sang mục Phân tích tháng
   function renderMonthlyTable(monthsDesc, currentMonthKey){
     const limit = (state.monthlyLimit && state.monthlyLimit > 0) ? state.monthlyLimit : null;
     el.monthlyTableBody.innerHTML = '';
@@ -2253,12 +2787,10 @@
       if(selectedChartMonthKey === m.key && chartMode === 'singleMonth') tr.classList.add('selected-month');
       tr.dataset.month = m.key;
 
-      // Badge % chênh lệch chi tiêu so với tháng trước (giảm chi = xanh tốt, tăng chi = đỏ cảnh báo)
       let expPctClass = 'neutral';
       if(m.expenseMoM.status === 'down') expPctClass = 'good';
       else if(m.expenseMoM.status === 'up' || m.expenseMoM.status === 'new') expPctClass = 'bad';
 
-      // Badge % chênh lệch thu nhập so với tháng trước (tăng thu = xanh tốt, giảm thu = đỏ)
       let incPctClass = 'neutral';
       if(m.incomeMoM.status === 'up' || m.incomeMoM.status === 'new') incPctClass = 'good';
       else if(m.incomeMoM.status === 'down') incPctClass = 'bad';
@@ -2299,9 +2831,360 @@
           ${netSubHtml}
         </td>
         <td class="num">${limitHtml}</td>
+        <td class="num">
+          <button type="button" class="analyze-row-btn" data-open-analysis-month="${m.key}">Phân tích →</button>
+        </td>
       `;
       el.monthlyTableBody.appendChild(tr);
     });
+  }
+
+  // =====================================================================
+  // BỘ SINH CÂU TỪ PHÂN TÍCH CHI TIẾT KHI KẾT THÚC 1 THÁNG
+  // =====================================================================
+  function renderEndOfMonthAnalysis(analytics){
+    const monthsDesc = analytics.monthsDesc;
+    const monthsAsc = analytics.monthsAsc;
+    const currentMonthKey = analytics.currentMonthKey;
+
+    // Chọn tháng mặc định cho mục phân tích: ưu tiên tháng đã kết thúc gần nhất nếu có
+    const completedMonthsDesc = monthsDesc.filter(m => m.key < currentMonthKey);
+    if(!selectedAnalysisMonthKey || !analytics.monthMap.has(selectedAnalysisMonthKey)){
+      selectedAnalysisMonthKey = completedMonthsDesc.length > 0 ? completedMonthsDesc[0].key : currentMonthKey;
+    }
+
+    // Cập nhật huy hiệu trên tab chuyển mục
+    if(completedMonthsDesc.length > 0){
+      const latestClosed = completedMonthsDesc[0];
+      const [, mm] = latestClosed.key.split('-');
+      el.tabAnalysisBadge.textContent = `T${mm}`;
+    } else {
+      el.tabAnalysisBadge.textContent = 'Hiện tại';
+    }
+
+    // Hiển thị banner nhắc khi vừa kết thúc tháng (từ ngày 1 đến ngày 7 đầu tháng mới, nếu có dữ liệu tháng trước)
+    const now = new Date();
+    const prevMonthKey = getPreviousMonthKey(currentMonthKey);
+    const prevMonthData = analytics.monthMap.get(prevMonthKey);
+    const dismissedMonth = localStorage.getItem(EOM_DISMISS_KEY);
+    if(now.getDate() <= 7 && prevMonthData && prevMonthData.count > 0 && dismissedMonth !== prevMonthKey){
+      el.eomBanner.classList.add('show');
+      el.eomBannerTitle.textContent = `📑 Đã kết thúc ${formatMonthLabel(prevMonthKey)}`;
+      el.eomBannerSub.textContent = `Tổng chi ${formatVND(prevMonthData.expense)} ₫ · Tổng thu ${formatVND(prevMonthData.income)} ₫ — Bấm để xem bản phân tích tháng vừa qua.`;
+    } else {
+      el.eomBanner.classList.remove('show');
+    }
+
+    // Đổ danh sách tháng vào bộ chọn chuyển qua chuyển lại
+    el.analysisMonthSelect.innerHTML = '';
+    monthsDesc.forEach(m => {
+      const opt = document.createElement('option');
+      opt.value = m.key;
+      const suffix = m.key === currentMonthKey ? ' (Đang diễn ra)' : ' (Đã kết thúc)';
+      opt.textContent = formatMonthLabel(m.key) + suffix;
+      el.analysisMonthSelect.appendChild(opt);
+    });
+    el.analysisMonthSelect.value = selectedAnalysisMonthKey;
+
+    const ascIdx = monthsAsc.findIndex(m => m.key === selectedAnalysisMonthKey);
+    el.analysisPrevMonthBtn.disabled = ascIdx <= 0;
+    el.analysisNextMonthBtn.disabled = ascIdx === -1 || ascIdx >= monthsAsc.length - 1;
+
+    const mData = analytics.monthMap.get(selectedAnalysisMonthKey) || {
+      key: selectedAnalysisMonthKey, income: 0, expense: 0, count: 0,
+      expenseMoM: { status:'first', text:'Kỳ đầu', pct:null },
+      incomeMoM: { status:'first', text:'Kỳ đầu', pct:null },
+      net: 0, netRatePct: null
+    };
+    const prevMData = ascIdx > 0 ? monthsAsc[ascIdx - 1] : null;
+    const isOngoing = (selectedAnalysisMonthKey === currentMonthKey);
+    const monthLabel = formatMonthLabel(selectedAnalysisMonthKey);
+
+    // Trạng thái header
+    if(isOngoing){
+      el.analysisMonthStatusPill.className = 'month-status-pill ongoing';
+      el.analysisMonthStatusPill.textContent = `⏳ Đang diễn ra (đến ${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')})`;
+      el.analysisSubtitle.textContent = `Tổng hợp tạm tính & dự báo nhịp độ chi tiêu của ${monthLabel}`;
+    } else {
+      el.analysisMonthStatusPill.className = 'month-status-pill closed';
+      el.analysisMonthStatusPill.textContent = '✓ Đã kết thúc tháng';
+      el.analysisSubtitle.textContent = `Bản phân tích tổng kết trọn vẹn sau khi khép lại ${monthLabel}`;
+    }
+
+    // Gom chi tiết giao dịch trong tháng đang phân tích & tháng liền trước
+    const monthTxs = state.transactions.filter(tx => getMonthKey(tx.ts) === selectedAnalysisMonthKey);
+    const expenseTxs = monthTxs.filter(tx => tx.type === 'expense');
+    const incomeTxs = monthTxs.filter(tx => tx.type === 'income');
+
+    const prevMonthTxs = prevMData
+      ? state.transactions.filter(tx => getMonthKey(tx.ts) === prevMData.key)
+      : [];
+
+    // Thống kê theo nhãn trong tháng này
+    const tagExpMap = new Map();
+    expenseTxs.forEach(tx => {
+      const tName = (tx.tag && String(tx.tag).trim()) ? String(tx.tag).trim() : 'Chưa gắn nhãn';
+      if(!tagExpMap.has(tName)) tagExpMap.set(tName, { name: tName, amount: 0, count: 0 });
+      const b = tagExpMap.get(tName);
+      b.amount += tx.amount;
+      b.count += 1;
+    });
+    const sortedExpTags = Array.from(tagExpMap.values()).sort((a,b) => b.amount - a.amount);
+
+    // Thống kê theo nhãn ở tháng trước để tìm nhóm biến động mạnh nhất
+    const prevTagExpMap = new Map();
+    prevMonthTxs.filter(tx => tx.type === 'expense').forEach(tx => {
+      const tName = (tx.tag && String(tx.tag).trim()) ? String(tx.tag).trim() : 'Chưa gắn nhãn';
+      prevTagExpMap.set(tName, (prevTagExpMap.get(tName) || 0) + tx.amount);
+    });
+
+    // Cập nhật 4 thẻ KPI
+    el.anKpiIncome.textContent = `+${formatVND(mData.income)} ₫`;
+    el.anKpiIncomeMoM.textContent = `So với tháng trước: ${mData.incomeMoM.text}`;
+
+    el.anKpiExpense.textContent = `−${formatVND(mData.expense)} ₫`;
+    el.anKpiExpenseMoM.textContent = `So với tháng trước: ${mData.expenseMoM.text}`;
+
+    const net = mData.net;
+    el.anKpiNet.textContent = `${net >= 0 ? '+' : '−'}${formatVND(Math.abs(net))} ₫`;
+    el.anKpiNet.style.color = net >= 0 ? 'var(--stamp-green)' : 'var(--stamp-red)';
+    if(mData.netRatePct !== null){
+      const sSign = mData.netRatePct > 0 ? '+' : (mData.netRatePct < 0 ? '−' : '');
+      el.anKpiSaveRate.textContent = `Tỷ lệ giữ lại: ${sSign}${formatPctValue(Math.abs(mData.netRatePct))}`;
+    } else {
+      el.anKpiSaveRate.textContent = 'Tỷ lệ giữ lại: —';
+    }
+
+    if(sortedExpTags.length > 0 && mData.expense > 0){
+      const topT = sortedExpTags[0];
+      const topMeta = getTagMeta(topT.name === 'Chưa gắn nhãn' ? '' : topT.name);
+      const topPct = (topT.amount / mData.expense) * 100;
+      el.anKpiTopTag.textContent = `${topMeta.icon} ${topT.name}`;
+      el.anKpiTopTagShare.textContent = `${formatVND(topT.amount)} ₫ (${formatPctValue(topPct)})`;
+    } else {
+      el.anKpiTopTag.textContent = 'Chưa có khoản chi';
+      el.anKpiTopTagShare.textContent = 'Chiếm tỷ trọng: 0%';
+    }
+
+    // Trường hợp tháng chưa có giao dịch nào
+    if(monthTxs.length === 0){
+      el.anVerdictBox.className = 'verdict-box neutral';
+      el.anVerdictCategory.textContent = `Trạng thái ${monthLabel}`;
+      el.anVerdictHeadline.textContent = `Chưa ghi nhận giao dịch nào trong ${monthLabel}`;
+      el.anNarrativeContainer.innerHTML = `
+        <div class="narrative-block">
+          <div class="narrative-block-title">📝 Ghi chú dữ liệu</div>
+          <p class="narrative-prose">Trong <strong>${monthLabel}</strong> hiện chưa có khoản thu hay khoản chi nào được lưu. Bạn có thể bấm nút <strong>"◀ Tháng trước"</strong> ở góc trên để xem phân tích của các tháng đã có dữ liệu, hoặc quay lại mục <strong>Sổ ghi & Biểu đồ</strong> để bổ sung giao dịch.</p>
+        </div>
+      `;
+      lastGeneratedAnalysisPlainText = `PHÂN TÍCH ${monthLabel.toUpperCase()}\nChưa có giao dịch nào được ghi nhận trong tháng này.`;
+      return;
+    }
+
+    // Xếp loại đánh giá tổng thể tháng
+    let verdictClass = 'neutral';
+    let verdictTitle = '';
+    if(mData.income > 0 && net > 0){
+      const saveRate = (net / mData.income) * 100;
+      if(saveRate >= 30){
+        verdictClass = 'excellent';
+        verdictTitle = `Rất tích cực — Giữ lại được ${formatPctValue(saveRate)} tổng thu nhập`;
+      } else if(saveRate >= 10){
+        verdictClass = 'balanced';
+        verdictTitle = `Cân đối ổn định — Thặng dư ${formatVND(net)} ₫ (${formatPctValue(saveRate)} thu nhập)`;
+      } else {
+        verdictClass = 'balanced';
+        verdictTitle = `Thu vừa đủ chi — Tích lũy mỏng (${formatPctValue(saveRate)} thu nhập)`;
+      }
+    } else if(mData.income > 0 && net < 0){
+      verdictClass = 'warning';
+      verdictTitle = `Cảnh báo thâm hụt — Chi vượt Thu ${formatVND(Math.abs(net))} ₫`;
+    } else if(mData.income === 0 && mData.expense > 0){
+      verdictClass = 'warning';
+      verdictTitle = `Tháng chỉ phát sinh chi tiêu (${formatVND(mData.expense)} ₫), chưa ghi nhận nguồn thu`;
+    } else {
+      verdictClass = 'excellent';
+      verdictTitle = `Tháng chỉ phát sinh nguồn thu (+${formatVND(mData.income)} ₫), không có khoản chi`;
+    }
+
+    el.anVerdictBox.className = 'verdict-box ' + verdictClass;
+    el.anVerdictCategory.textContent = isOngoing ? `Đánh giá tạm tính ${monthLabel}` : `Tổng kết xếp loại ${monthLabel}`;
+    el.anVerdictHeadline.textContent = verdictTitle;
+
+    // 1. Đoạn văn Tổng quan Thu – Chi & Nhịp độ tháng
+    const [yStr, mStr] = selectedAnalysisMonthKey.split('-');
+    const daysInMonth = new Date(parseInt(yStr, 10), parseInt(mStr, 10), 0).getDate();
+    const elapsedDays = isOngoing ? Math.max(1, now.getDate()) : daysInMonth;
+    const avgDailyExpense = Math.round(mData.expense / elapsedDays);
+    const avgPerExpenseTx = expenseTxs.length > 0 ? Math.round(mData.expense / expenseTxs.length) : 0;
+
+    let overviewText = '';
+    const introPrefix = isOngoing
+      ? `Tính đến ngày <strong>${String(now.getDate()).padStart(2,'0')}/${mStr}/${yStr}</strong> (qua <strong>${elapsedDays}/${daysInMonth} ngày</strong> của <strong>${monthLabel}</strong>), `
+      : `Khép lại <strong>${monthLabel}</strong> (trọn vẹn <strong>${daysInMonth} ngày</strong>), `;
+
+    overviewText += introPrefix;
+    overviewText += `bạn ghi nhận tổng cộng <strong>${monthTxs.length} giao dịch</strong> gồm <strong>${incomeTxs.length} khoản thu</strong> với tổng tiền <strong>+${formatVND(mData.income)} ₫</strong> và <strong>${expenseTxs.length} khoản chi</strong> với tổng tiền <strong>−${formatVND(mData.expense)} ₫</strong>. `;
+
+    if(net > 0){
+      const rateStr = mData.income > 0 ? ` (tương đương <strong>${formatPctValue((net / mData.income) * 100)}</strong> tổng thu)` : '';
+      overviewText += `Cân đối cuối kỳ đạt thặng dư ròng <strong>+${formatVND(net)} ₫</strong>${rateStr}, giúp số dư sổ quỹ của bạn tăng lên đáng kể. `;
+    } else if(net < 0){
+      overviewText += `Tổng chi đã vượt quá nguồn thu trong tháng là <strong>${formatVND(Math.abs(net))} ₫</strong>, khiến bạn phải trích thêm từ phần số dư tích lũy trước đó. `;
+    } else {
+      overviewText += `Tổng thu và tổng chi trong tháng cân bằng tuyệt đối (<strong>0 ₫</strong> chênh lệch). `;
+    }
+
+    if(expenseTxs.length > 0){
+      overviewText += `Trung bình mỗi ngày bạn chi khoảng <strong>${formatVND(avgDailyExpense)} ₫/ngày</strong> (bình quân <strong>${formatVND(avgPerExpenseTx)} ₫/lần chi</strong>).`;
+      if(isOngoing && elapsedDays < daysInMonth){
+        const projectedMonthExp = Math.round(avgDailyExpense * daysInMonth);
+        overviewText += ` Nếu duy trì nhịp độ này đến hết ngày ${daysInMonth}/${mStr}, tổng chi cả tháng dự kiến vào khoảng <strong>${formatVND(projectedMonthExp)} ₫</strong>.`;
+      }
+    }
+
+    // 2. Đoạn văn So sánh biến động với tháng trước (% MoM)
+    let momText = '';
+    if(!prevMData){
+      momText = `<strong>${monthLabel}</strong> là kỳ dữ liệu đầu tiên được ghi nhận trên sổ quỹ nên chưa có số liệu tháng liền trước để đối chiếu tỷ lệ tăng/giảm (%). Các số liệu của tháng này sẽ là mốc chuẩn để so sánh cho tháng kế tiếp.`;
+    } else {
+      const prevLabel = formatMonthLabel(prevMData.key);
+      const expDiff = mData.expense - prevMData.expense;
+      const incDiff = mData.income - prevMData.income;
+
+      if(expDiff > 0){
+        momText += `So với <strong>${prevLabel}</strong>, tổng chi tiêu tháng này <strong>tăng thêm ${formatVND(expDiff)} ₫</strong> (tức <strong>${mData.expenseMoM.text}</strong>, từ ${formatVND(prevMData.expense)} ₫ lên ${formatVND(mData.expense)} ₫). `;
+      } else if(expDiff < 0){
+        momText += `So với <strong>${prevLabel}</strong>, bạn đã <strong>tiết giảm được ${formatVND(Math.abs(expDiff))} ₫</strong> tiền chi tiêu (tức <strong>${mData.expenseMoM.text}</strong>, giảm từ ${formatVND(prevMData.expense)} ₫ xuống ${formatVND(mData.expense)} ₫) — một tín hiệu kiểm soát chi tiêu rất tốt. `;
+      } else {
+        momText += `So với <strong>${prevLabel}</strong>, tổng chi tiêu giữ nguyên ở mức <strong>${formatVND(mData.expense)} ₫</strong> (<strong>0%</strong> biến động). `;
+      }
+
+      if(incDiff > 0){
+        momText += `Ở chiều ngược lại, nguồn thu <strong>tăng +${formatVND(incDiff)} ₫</strong> (<strong>${mData.incomeMoM.text}</strong>) so với tháng trước. `;
+      } else if(incDiff < 0){
+        momText += `Về nguồn thu, tháng này <strong>giảm −${formatVND(Math.abs(incDiff))} ₫</strong> (<strong>${mData.incomeMoM.text}</strong>) so với ${prevLabel}. `;
+      } else {
+        momText += `Nguồn thu ổn định ở mức <strong>${formatVND(mData.income)} ₫</strong> (<strong>0%</strong> thay đổi). `;
+      }
+
+      // Tìm nhóm nhãn biến động lớn nhất so với tháng trước
+      const allTagNames = new Set([...tagExpMap.keys(), ...prevTagExpMap.keys()]);
+      let biggestShift = null;
+      allTagNames.forEach(tName => {
+        const currAmt = tagExpMap.has(tName) ? tagExpMap.get(tName).amount : 0;
+        const prevAmt = prevTagExpMap.get(tName) || 0;
+        const delta = currAmt - prevAmt;
+        if(delta !== 0 && (!biggestShift || Math.abs(delta) > Math.abs(biggestShift.delta))){
+          biggestShift = { name: tName, currAmt, prevAmt, delta };
+        }
+      });
+
+      if(biggestShift){
+        const shiftPctObj = calcMoMChange(biggestShift.currAmt, biggestShift.prevAmt);
+        const dirWord = biggestShift.delta > 0 ? 'tăng mạnh nhất' : 'giảm mạnh nhất';
+        const signStr = biggestShift.delta > 0 ? '+' : '−';
+        momText += `Xét theo từng nhãn, nhóm <strong>${escapeHtml(biggestShift.name)}</strong> là khoản mục ${dirWord}: biến động <strong>${signStr}${formatVND(Math.abs(biggestShift.delta))} ₫</strong> (${shiftPctObj.text}) so với tháng trước.`;
+      }
+    }
+
+    // 3. Đoạn văn Cơ cấu chi tiêu theo nhãn & Khoản chi lớn nhất
+    let categoryText = '';
+    if(sortedExpTags.length === 0){
+      categoryText = `Trong <strong>${monthLabel}</strong> không phát sinh khoản chi tiêu nào, toàn bộ giao dịch đều là khoản thu.`;
+    } else {
+      const top1 = sortedExpTags[0];
+      const top1Pct = (top1.amount / mData.expense) * 100;
+      categoryText += `Chi tiêu trong tháng tập trung lớn nhất vào nhãn <strong>${escapeHtml(top1.name)}</strong> với <strong>${formatVND(top1.amount)} ₫</strong> qua <strong>${top1.count} lần chi</strong>, chiếm <strong>${formatPctValue(top1Pct)}</strong> tổng chi toàn tháng. `;
+
+      if(sortedExpTags.length >= 2){
+        const top2 = sortedExpTags[1];
+        const top2Pct = (top2.amount / mData.expense) * 100;
+        categoryText += `Đứng thứ hai là nhãn <strong>${escapeHtml(top2.name)}</strong> với <strong>${formatVND(top2.amount)} ₫</strong> (chiếm <strong>${formatPctValue(top2Pct)}</strong>). `;
+      }
+
+      if(top1Pct >= 55){
+        categoryText += `Tỷ trọng chi cho <strong>${escapeHtml(top1.name)}</strong> đang chiếm hơn một nửa ngân sách tháng — bạn nên rà soát lại các khoản nhỏ lẻ trong nhóm này để cân đối hơn. `;
+      } else if(sortedExpTags.length >= 3){
+        categoryText += `Cơ cấu chi tiêu phân bổ khá đồng đều qua <strong>${sortedExpTags.length} nhóm nhãn</strong>, không bị phụ thuộc quá mức vào một khoản mục duy nhất. `;
+      }
+
+      // Khoản chi đơn lẻ lớn nhất trong tháng
+      const largestTx = expenseTxs.slice().sort((a,b) => b.amount - a.amount)[0];
+      if(largestTx){
+        const txDateStr = new Date(largestTx.ts).toLocaleDateString('vi-VN', {day:'2-digit', month:'2-digit'});
+        const txShare = (largestTx.amount / mData.expense) * 100;
+        const txTagLabel = largestTx.tag ? ` (nhãn <em>${escapeHtml(largestTx.tag)}</em>)` : '';
+        categoryText += `Khoản chi đơn lẻ lớn nhất trong tháng là <strong>"${escapeHtml(largestTx.name)}"</strong>${txTagLabel} vào ngày <strong>${txDateStr}</strong> với số tiền <strong>${formatVND(largestTx.amount)} ₫</strong>, chiếm <strong>${formatPctValue(txShare)}</strong> tổng chi tháng.`;
+      }
+    }
+
+    // 4. Đánh giá giới hạn & Gợi ý hành động cho tháng tới
+    const tips = [];
+    const limit = (state.monthlyLimit && state.monthlyLimit > 0) ? state.monthlyLimit : null;
+    if(limit){
+      const limitRatio = (mData.expense / limit) * 100;
+      if(mData.expense <= limit){
+        tips.push(`<strong>Tuân thủ tốt hạn mức:</strong> Bạn chỉ dùng <strong>${formatPctValue(limitRatio)}</strong> giới hạn chi tiêu (${formatVND(mData.expense)} ₫ / ${formatVND(limit)} ₫), giữ an toàn được <strong>${formatVND(limit - mData.expense)} ₫</strong> dưới mức trần.`);
+      } else {
+        tips.push(`<strong>Vượt giới hạn chi tiêu:</strong> Tổng chi đã vượt mức trần <strong>${formatVND(limit)} ₫</strong> là <strong>${formatVND(mData.expense - limit)} ₫</strong> (${formatPctValue(limitRatio)}). Tháng tới cần siết lại trung bình khoảng <strong>${formatVND(Math.ceil((mData.expense - limit) / 30))} ₫/ngày</strong> để đưa chi tiêu về đúng kế hoạch.`);
+      }
+    } else if(mData.expense > 0){
+      const suggestedCap = Math.round((mData.expense * 0.9) / 100000) * 100000;
+      tips.push(`<strong>Gợi ý đặt giới hạn tháng tới:</strong> Dựa trên mức chi ${formatVND(mData.expense)} ₫ của ${monthLabel}, bạn có thể đặt mức trần chi tiêu mục tiêu khoảng <strong>${formatVND(Math.max(100000, suggestedCap))} ₫/tháng</strong> để tối ưu thêm ~10% chi phí.`);
+    }
+
+    if(net < 0 && sortedExpTags.length > 0){
+      const cutTarget = Math.min(sortedExpTags[0].amount, Math.abs(net));
+      tips.push(`<strong>Ưu tiên cân bằng thu chi:</strong> Để không lặp lại mức thâm hụt ${formatVND(Math.abs(net))} ₫, hãy tập trung cắt giảm khoảng <strong>${formatVND(cutTarget)} ₫</strong> ở nhóm <strong>${escapeHtml(sortedExpTags[0].name)}</strong> trong tháng tới.`);
+    } else if(net > 0){
+      const suggestedSave = Math.round((net * 0.5) / 50000) * 50000;
+      if(suggestedSave >= 50000){
+        tips.push(`<strong>Phát huy phần thặng dư:</strong> Với khoản dư <strong>+${formatVND(net)} ₫</strong> đạt được, bạn nên trích cố định khoảng <strong>${formatVND(suggestedSave)} ₫</strong> (50% phần dư) sang quỹ dự phòng hoặc đầu tư cho nhãn <strong>Học tập</strong>.`);
+      }
+    }
+
+    const untaggedCount = monthTxs.filter(t => !t.tag || !String(t.tag).trim()).length;
+    if(untaggedCount > 0){
+      tips.push(`<strong>Hoàn thiện phân loại:</strong> Còn <strong>${untaggedCount} giao dịch</strong> trong ${monthLabel} chưa được gắn nhãn. Bạn có thể bấm trực tiếp vào giao dịch ở Lịch sử để gắn nhãn giúp báo cáo cuối năm chính xác 100%.`);
+    }
+
+    el.anNarrativeContainer.innerHTML = `
+      <div class="narrative-block income-accent">
+        <div class="narrative-block-title">1. Tổng quan Thu – Chi & Khả năng tích lũy</div>
+        <p class="narrative-prose">${overviewText}</p>
+      </div>
+      <div class="narrative-block">
+        <div class="narrative-block-title">2. Biến động so với tháng liền trước (%)</div>
+        <p class="narrative-prose">${momText}</p>
+      </div>
+      <div class="narrative-block expense-accent">
+        <div class="narrative-block-title">3. Cơ cấu chi tiêu theo nhãn & Khoản chi trọng tâm</div>
+        <p class="narrative-prose">${categoryText}</p>
+      </div>
+      <div class="narrative-block advice-accent">
+        <div class="narrative-block-title">4. Nhận xét hạn mức & Gợi ý cho tháng tiếp theo</div>
+        <ul class="narrative-list">${tips.map(t => `<li>${t}</li>`).join('')}</ul>
+      </div>
+    `;
+
+    // Tạo bản text thuần để người dùng sao chép nhanh
+    const stripTags = html => {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = html;
+      return tmp.textContent || tmp.innerText || '';
+    };
+    lastGeneratedAnalysisPlainText = [
+      `📊 PHÂN TÍCH KẾT THÚC ${monthLabel.toUpperCase()} (${verdictTitle})`,
+      `• Tổng Thu: +${formatVND(mData.income)} ₫ (${mData.incomeMoM.text})`,
+      `• Tổng Chi: −${formatVND(mData.expense)} ₫ (${mData.expenseMoM.text})`,
+      `• Chênh lệch: ${net >= 0 ? '+' : '−'}${formatVND(Math.abs(net))} ₫`,
+      ``,
+      `1. Tổng quan: ${stripTags(overviewText)}`,
+      `2. So với tháng trước: ${stripTags(momText)}`,
+      `3. Cơ cấu theo nhãn: ${stripTags(categoryText)}`,
+      `4. Gợi ý tháng tới:\n` + tips.map(t => `- ${stripTags(t)}`).join('\n')
+    ].join('\n');
   }
 
   // Bảng thống kê tổng kết năm (tự động kích hoạt vào 1/1 hằng năm)
@@ -2319,7 +3202,6 @@
     }
     el.annualYearSelect.value = String(selectedAnnualYear);
 
-    // Kiểm tra ngày 01/01 hằng năm
     const now = new Date();
     const isNewYearDay = (now.getMonth() === 0 && now.getDate() === 1);
     if(isNewYearDay){
@@ -2385,7 +3267,6 @@
       }
     });
 
-    // Cập nhật 4 chỉ số KPI năm
     el.annualTotalIncome.textContent = `+${formatVND(yearIncome)} ₫`;
     el.annualTotalExpense.textContent = `−${formatVND(yearExpense)} ₫`;
 
@@ -2416,7 +3297,6 @@
       el.annualPeakMonth.textContent = 'Tháng chi cao nhất: —';
     }
 
-    // 1. Bảng thống kê theo nhãn trong năm
     const catList = Array.from(catMap.values()).sort((a,b) => (b.expense - a.expense) || (b.income - a.income));
     el.annualTagCountNote.textContent = `${catList.length} nhóm nhãn`;
     el.annualCategoryBody.innerHTML = '';
@@ -2451,7 +3331,6 @@
       });
     }
 
-    // 2. Bảng tổng kết 12 tháng trong năm
     el.annualMonthlyBody.innerHTML = '';
     monthlyBuckets.forEach((b, idx) => {
       const prevB = idx > 0 ? monthlyBuckets[idx - 1] : null;
@@ -2634,6 +3513,7 @@
     const canvas = el.trendCanvas;
     const wrap = el.chartWrap;
     const rect = wrap.getBoundingClientRect();
+    if(rect.width <= 0) return;
     const width = Math.max(280, Math.floor(rect.width));
     const height = 255;
     const dpr = window.devicePixelRatio || 1;
@@ -2927,6 +3807,7 @@
     syncLedgerTagFilter();
     updateChartHeaderAndSummary(analytics);
     renderMonthlyTable(analytics.monthsDesc, analytics.currentMonthKey);
+    renderEndOfMonthAnalysis(analytics);
     renderAnnualSummary(analytics);
     hoveredPointIndex = -1;
     drawLineChart(analytics.monthsAsc);
@@ -2944,7 +3825,6 @@
       }
     }
 
-    // Hiển thị thanh tổng hợp nhanh khi đang lọc theo nhãn hoặc tháng
     if(selectedLedgerMonth !== 'all' || selectedLedgerTag !== 'all'){
       let fIn = 0, fOut = 0;
       txs.forEach(t => { if(t.type === 'income') fIn += t.amount; else fOut += t.amount; });
@@ -3250,6 +4130,70 @@
     }
   });
 
+  // =====================================================================
+  // SỰ KIỆN CHUYỂN QUA CHUYỂN LẠI GIỮA CÁC MỤC RIÊNG & GIỮA CÁC THÁNG
+  // =====================================================================
+  document.querySelectorAll('.section-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      switchView(btn.dataset.view);
+    });
+  });
+
+  el.quickToAnalysisBtn.addEventListener('click', () => switchView('monthAnalysis'));
+  el.scrollToAnnualBtn.addEventListener('click', () => switchView('annual'));
+  el.nyJumpBtn.addEventListener('click', () => switchView('annual'));
+
+  el.eomJumpBtn.addEventListener('click', () => {
+    const prevKey = getPreviousMonthKey(getMonthKey(Date.now()));
+    selectedAnalysisMonthKey = prevKey;
+    render();
+    switchView('monthAnalysis');
+  });
+  el.eomDismissBtn.addEventListener('click', () => {
+    const prevKey = getPreviousMonthKey(getMonthKey(Date.now()));
+    localStorage.setItem(EOM_DISMISS_KEY, prevKey);
+    el.eomBanner.classList.remove('show');
+  });
+
+  el.anBackToMainBtn.addEventListener('click', () => switchView('main'));
+  el.anGoToAnnualBtn.addEventListener('click', () => switchView('annual'));
+  el.annualBackToMainBtn.addEventListener('click', () => switchView('main'));
+  el.annualGoToAnalysisBtn.addEventListener('click', () => switchView('monthAnalysis'));
+
+  // Chuyển qua chuyển lại giữa các tháng trong mục Phân tích kết thúc tháng
+  el.analysisMonthSelect.addEventListener('change', () => {
+    selectedAnalysisMonthKey = el.analysisMonthSelect.value;
+    render();
+  });
+  el.analysisPrevMonthBtn.addEventListener('click', () => {
+    const analytics = computeAnalytics();
+    const idx = analytics.monthsAsc.findIndex(m => m.key === selectedAnalysisMonthKey);
+    if(idx > 0){
+      selectedAnalysisMonthKey = analytics.monthsAsc[idx - 1].key;
+      render();
+    }
+  });
+  el.analysisNextMonthBtn.addEventListener('click', () => {
+    const analytics = computeAnalytics();
+    const idx = analytics.monthsAsc.findIndex(m => m.key === selectedAnalysisMonthKey);
+    if(idx >= 0 && idx < analytics.monthsAsc.length - 1){
+      selectedAnalysisMonthKey = analytics.monthsAsc[idx + 1].key;
+      render();
+    }
+  });
+
+  // Sao chép bản phân tích tháng
+  el.anCopyTextBtn.addEventListener('click', () => {
+    if(!lastGeneratedAnalysisPlainText) return;
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(lastGeneratedAnalysisPlainText)
+        .then(() => showToast('Đã sao chép bản phân tích tháng'))
+        .catch(() => showToast('Không sao chép được tự động'));
+    } else {
+      showToast('Trình duyệt không hỗ trợ sao chép nhanh');
+    }
+  });
+
   // Sự kiện biểu đồ đường theo từng tháng
   function selectChartMonth(mKey){
     selectedChartMonthKey = mKey;
@@ -3306,8 +4250,15 @@
   el.trendCanvas.addEventListener('mouseleave', clearChartHover);
   window.addEventListener('resize', () => drawLineChart(cachedMonthsAsc));
 
-  // Bấm vào dòng tháng ở bảng so sánh
+  // Bấm vào dòng tháng hoặc nút "Phân tích →" ở bảng so sánh
   el.monthlyTableBody.addEventListener('click', e => {
+    const analyzeBtn = e.target.closest('[data-open-analysis-month]');
+    if(analyzeBtn){
+      selectedAnalysisMonthKey = analyzeBtn.dataset.openAnalysisMonth;
+      render();
+      switchView('monthAnalysis');
+      return;
+    }
     const tr = e.target.closest('tr[data-month]');
     if(!tr) return;
     const mKey = tr.dataset.month;
@@ -3321,16 +4272,11 @@
     showToast(`Đang xem biểu đồ ${formatMonthLabel(mKey)}`);
   });
 
-  // Sự kiện tổng kết năm & cuộn nhanh
+  // Sự kiện tổng kết năm
   el.annualYearSelect.addEventListener('change', () => {
     selectedAnnualYear = parseInt(el.annualYearSelect.value, 10);
     render();
   });
-  function jumpToAnnual(){
-    el.annualSummaryCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-  el.scrollToAnnualBtn.addEventListener('click', jumpToAnnual);
-  el.nyJumpBtn.addEventListener('click', jumpToAnnual);
 
   // Bộ lọc lịch sử giao dịch
   el.ledgerMonthFilter.addEventListener('change', () => {
